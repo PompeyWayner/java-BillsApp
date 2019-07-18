@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contacts>
+<bill>
+	<name>Waynessss</name>
+	<date_due>04/07/2019</date_due>
+	<amount>33.0</amount>
+	<bank_account>None</bank_account>
+	<date_started>04/07/2019</date_started>
+	<date_changed>07/07/2019</date_changed>
+	<previous_amount>33.5</previous_amount>
+	<notes>hello world mm</notes>
+</bill>
+<bill>
+	<name>nicki</name>
+	<date_due>10/07/2019</date_due>
+	<amount>444.0</amount>
+	<bank_account>None</bank_account>
+	<date_started>04/07/2019</date_started>
+	<date_changed>04/07/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes> </notes>
+</bill>
+<bill>
+	<name>dave</name>
+	<date_due>26/07/2019</date_due>
+	<amount>88.0</amount>
+	<bank_account>None</bank_account>
+	<date_started>04/07/2019</date_started>
+	<date_changed>04/07/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes>hello</notes>
+</bill>
+<bill>
+	<name>callie</name>
+	<date_due>10/07/2019</date_due>
+	<amount>55.0</amount>
+	<bank_account>None</bank_account>
+	<date_started>04/07/2019</date_started>
+	<date_changed>04/07/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes>fgfgfg</notes>
+</bill>
+<bill>
+	<name>gffgfdg</name>
+	<date_due>10/07/2019</date_due>
+	<amount>55545.0</amount>
+	<bank_account>None</bank_account>
+	<date_started>04/07/2019</date_started>
+	<date_changed>04/07/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes>fgf</notes>
+</bill>
+<bill>
+	<name>gg</name>
+	<date_due>01/07/2019</date_due>
+	<amount>3.0</amount>
+	<bank_account>None</bank_account>
+	<date_started>04/07/2019</date_started>
+	<date_changed>04/07/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes> </notes>
+</bill>
+<bill>
+	<name>jjjkkk</name>
+	<date_due>01/07/2019</date_due>
+	<amount>77.0</amount>
+	<bank_account>Wayne</bank_account>
+	<date_started>04/07/2019</date_started>
+	<date_changed>04/07/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes>klll</notes>
+</bill>
+<bill>
+	<name>nnnnn</name>
+	<date_due>19/07/2019</date_due>
+	<amount>22.0</amount>
+	<bank_account>None</bank_account>
+	<date_started>04/07/2019</date_started>
+	<date_changed>04/07/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes>nn</notes>
+</bill>
+<bill>
+	<name>reece</name>
+	<date_due>20/07/2019</date_due>
+	<amount>22.0</amount>
+	<bank_account>Nicki</bank_account>
+	<date_started>04/07/2019</date_started>
+	<date_changed>04/07/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes>nnnnnn</notes>
+</bill>
+<bill>
+	<name>ddfdghdgfh</name>
+	<date_due>11/09/2019</date_due>
+	<amount>100.7</amount>
+	<bank_account>Nicki</bank_account>
+	<date_started>07/07/2019</date_started>
+	<date_changed>07/07/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes> </notes>
+</bill>
+<bill>
+	<name>lllllllllllllll</name>
+	<date_due>01/07/2019</date_due>
+	<amount>88.0</amount>
+	<bank_account>None</bank_account>
+	<date_started>07/07/2019</date_started>
+	<date_changed>07/07/2019</date_changed>
+	<previous_amount>88.0</previous_amount>
+	<notes>kkik</notes>
+</bill>
+</contacts>
