@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<DialogPane headerText="Add New Bill" prefHeight="327.0" prefWidth="456.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bills.BillController" > 
+<DialogPane headerText="Add New Bill" prefHeight="327.0" prefWidth="456.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bills.BillController" >
    <content>
       <GridPane prefHeight="500.0" prefWidth="456.0">
         <columnConstraints>

@@ -101,13 +101,13 @@
 	<notes> </notes>
 </bill>
 <bill>
-	<name>lllllllllllllll</name>
-	<date_due>01/07/2019</date_due>
-	<amount>88.0</amount>
-	<bank_account>None</bank_account>
-	<date_started>07/07/2019</date_started>
-	<date_changed>07/07/2019</date_changed>
-	<previous_amount>88.0</previous_amount>
-	<notes>kkik</notes>
+	<name>pompey</name>
+	<date_due>04/07/2019</date_due>
+	<amount>9999.0</amount>
+	<bank_account>Nicki</bank_account>
+	<date_started>27/07/2019</date_started>
+	<date_changed>27/07/2019</date_changed>
+	<previous_amount>9999.0</previous_amount>
+	<notes>kjh</notes>
 </bill>
 </contacts>
