@@ -7,7 +7,7 @@ import java.time.LocalDate;
  * class Bill holds the details of a household bill.
  *
  * @author Wayne Sandford
- * @version 03-07-19 02
+ * @version 05-08-2019 02
  */
 public class Bill {
 
@@ -20,13 +20,14 @@ public class Bill {
     private final ObjectProperty<LocalDate> dateStarted = new SimpleObjectProperty<>();
     private ObjectProperty<LocalDate> dateChanged = new SimpleObjectProperty<>();
     private SimpleDoubleProperty previousAmount = new SimpleDoubleProperty();
+    private final SimpleStringProperty month = new SimpleStringProperty();
 
     // Constructors.
     public Bill() {
     }
 
     public Bill(String name, LocalDate dateOfPayment, double amount, String account, String notes,
-                LocalDate dStarted, LocalDate dChanged, double pAmount) {
+                LocalDate dStarted, LocalDate dChanged, double pAmount, String aMonth) {
         this.name.set(name);
         this.dateOfPayment.set(dateOfPayment);
         this.amount.set(amount);
@@ -35,6 +36,7 @@ public class Bill {
         this.dateStarted.set(dStarted);
         this.dateChanged.set(dChanged);
         this.previousAmount.set(pAmount);
+        this.month.set(aMonth);
     }
 
     public String getName() {
@@ -133,9 +135,22 @@ public class Bill {
         this.previousAmount.set(previousAmount);
     }
 
+    public String getMonth() {
+        return month.get();
+    }
+
+    public SimpleStringProperty monthProperty() {
+        return month;
+    }
+
+    public void setMonth(String month) {
+        this.month.set(month);
+    }
+
     @Override
     public String toString() {
         return "Bill{" +
+                "month= " + month +
                 "name=" + name +
                 ", dateOfPayment=" + dateOfPayment +
                 ", amount=" + amount +
