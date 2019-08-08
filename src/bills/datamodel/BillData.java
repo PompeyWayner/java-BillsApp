@@ -238,6 +238,7 @@ public class BillData {
                 }
 
                 // If we reach the end of a contact element, we add it to the list.
+
                 if (event.isEndElement()) {
                     EndElement endElement = event.asEndElement();
                     if (endElement.getName().getLocalPart().equals(BILL)) {

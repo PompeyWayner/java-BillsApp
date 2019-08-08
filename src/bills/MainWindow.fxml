@@ -13,16 +13,12 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import bills.FormattedTableCellFactory?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 
-
-
-
-<?import javafx.scene.control.cell.PropertyValueFactory?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
             prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:id="mainPanel" fx:controller="bills.mainController">
+            fx:id="mainPanel" fx:controller="bills.mainController" stylesheets="@MainBillCSS.css">
    <children>
       <VBox layoutX="171.0" layoutY="73.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
             AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -43,8 +39,8 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Date">
                   <items>
-                    <MenuItem mnemonicParsing="false" text="Change Month Of Current Year" />
-                        <MenuItem mnemonicParsing="false" text="Add New Month Of Current Year" />
+                    <MenuItem mnemonicParsing="false" text="Change Month Of Current Year" onAction="#changeMonthDialog"/>
+                        <MenuItem mnemonicParsing="false" text="Add New Month Of Current Year" onAction="#addNewMonthDialog"/>
                         <MenuItem mnemonicParsing="false" text="Delete Current Month of Current Year" />
                         <Menu mnemonicParsing="false" text="Change Year">
                           <items>
@@ -87,12 +83,12 @@
                                   <PropertyValueFactory property="name"/>
                               </cellValueFactory>
                             </TableColumn>
-                            <TableColumn prefWidth="64.0" text="Date Due" fx:id="dateColumn">
+                            <TableColumn prefWidth="70.0" text="Date Due" fx:id="dateColumn">
                               <cellValueFactory>
                                   <PropertyValueFactory property="dateOfPayment"/>
                               </cellValueFactory>
                             </TableColumn>
-                              <TableColumn prefWidth="100.0" text="Amount" fx:id="amountColumn">
+                              <TableColumn prefWidth="92.0" text="Amount" fx:id="amountColumn">
                               <cellValueFactory>
                                   <PropertyValueFactory property="amount"/>
                               </cellValueFactory>
@@ -100,8 +96,8 @@
                           </columns>
                         </TableView>
                         <Label layoutX="32.0" layoutY="6.0" prefHeight="17.0" prefWidth="55.0" text="Bills For: " />
-                        <Label layoutX="101.0" layoutY="6.0" prefHeight="17.0" prefWidth="43.0" text="Month" />
-                        <Label layoutX="160.0" layoutY="6.0" text="Year" />
+                        <Label layoutX="101.0" layoutY="6.0" prefHeight="17.0" prefWidth="60.0" fx:id="monthLabel" />
+                        <Label layoutX="170.0" layoutY="6.0" text="Year" />
                      </children>
                   </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
