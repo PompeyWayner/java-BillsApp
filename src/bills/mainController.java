@@ -3,6 +3,7 @@ package bills;
 import bills.datamodel.Bill;
 import bills.datamodel.BillData;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -15,7 +16,7 @@ import java.util.Optional;
  * Controller for MainWindow.fxml
  *
  * @author Wayne Sandford
- * @version 07-07-19 01
+ * @version 08-08-19 02
  */
 public class mainController {
 
@@ -24,9 +25,9 @@ public class mainController {
     @FXML
     private TableView<Bill> billsTable;
     @FXML
-    TableColumn<Bill, Double> amountColumn;
+    private TableColumn<Bill, Double> amountColumn;
     @FXML
-    TableColumn<Bill, LocalDate> dateColumn;
+    private TableColumn<Bill, LocalDate> dateColumn;
     @FXML
     private Label nameLabel;
     @FXML
@@ -45,17 +46,23 @@ public class mainController {
     private Label notesLabel;
     @FXML
     private Label totalLabel;
+    @FXML
+    private Label monthLabel;
 
     private BillData data; // class BillData variable
 
     /**
-     * Initialise variables, set up bill list
+     * Initialise variables, set up bill list.
      */
     public void initialize() {
-        // Clear person details.
-        showPersonDetails(null);
+
+        showPersonDetails(null); // Clear person details.
         data = new BillData(); // Create new BillData instance.
         data.loadBills(); // Load the bills from file.
+        data.setBills(data.getBillsMap().get(data.getCurrentMonth())); // Load List with default month to show
+
+        System.out.println("mainController.itialise() - Displaying current state of map loaded from file in");
+
         billsTable.setItems(data.getBills()); // Set up TableView to list bills
 
         // Formatting of date for table column
@@ -97,7 +104,10 @@ public class mainController {
         });
 
         // Update current total of bill amounts and display in appropriate label
-        totalLabel.setText(Double.toString(data.calculateTotal())); // Set up current bills total.
+       // totalLabel.setText(Double.toString(data.calculateTotal())); // Set up current bills total.
+
+        // Display current month that bills are for.
+        monthLabel.setText(data.getCurrentMonth());
     }
 
     /**
@@ -162,13 +172,19 @@ public class mainController {
             BillController billController = fxmlLoader.getController(); // Menu dialog controller retrieve.
             Bill newBill = billController.getNewBill(); // Retrieve new bill object from dialog controller.
 
-            // Test to see if newBill is null, which means a invalid bill object
-            if(newBill != null) { // Validated Bill object
-                data.addBill(newBill); // Add the new bill to the bills list.
+            // Test to see if newBill is valid - add new Bill object to current Month.
+            if(newBill != null) {
+                for(String eachMonth : data.getBillsMap().keySet()) {
+                    System.out.println("mainController.showAddBillDialog()" + eachMonth);
+                    if (newBill.getMonth().equals(eachMonth)) {
+                        data.getBillsMap().get(eachMonth).add(newBill);
+                        System.out.println("mainController.showAddBillDialog" + newBill.toString());
+                    }
+                }
                 data.saveBills(); // Write updated list to file.
 
                 // Update current total of bill amounts and display in appropriate label
-                totalLabel.setText(Double.toString(data.calculateTotal())); // Set up current bills total.
+                //totalLabel.setText(Double.toString(data.calculateTotal())); // Set up current bills total.
 
             } else { // Invalid object - null returned
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -224,7 +240,7 @@ public class mainController {
 
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            if(billController.updateBill(selectedBill) == true) { // Validated updated bill
+            if(billController.updateBill(selectedBill)) { // Validated updated bill
                 {
                     data.saveBills();
                     showPersonDetails(selectedBill);
@@ -281,6 +297,7 @@ public class mainController {
         alert.setHeaderText(null);
         alert.setContentText("Written by Wayne Sandford\n2019");
         Optional<ButtonType> result = alert.showAndWait();
+        data.displayMap(); // Temporary for debugging
     }
 
     /**
@@ -291,4 +308,107 @@ public class mainController {
         Platform.exit();
     }
 
+    @FXML
+    public void addNewMonthDialog() {
+        Dialog<ButtonType> dialog = new Dialog<>(); // Create new dialog box instance.
+        dialog.initOwner(mainPanel.getScene().getWindow());
+        dialog.setTitle("Add New Month");
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource("newMonthDialog.fxml"));
+        // Load dialog box.
+        try {
+            dialog.getDialogPane().setContent(fxmlLoader.load());
+
+        } catch(IOException e) {
+            System.out.println("Could not load the dialog");
+            e.printStackTrace();
+            return;
+        }
+
+        // Add buttons.
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+
+        Optional<ButtonType> result = dialog.showAndWait(); // Dialog box in modal mode.
+        // If content is present and button OK is pressed.
+        if(result.isPresent() && result.get() == ButtonType.OK) {
+            // Get access to the controller associated with the bill dialog fxml file.
+            NewMonthController newMonthController = fxmlLoader.getController(); // New month dialog controller retrieve.
+//          // *** Test to see if month does not already exist for this year ***
+            data.setCurrentMonth(newMonthController.getNewMonth());
+            // Display current month that bills are for.
+            monthLabel.setText(data.getCurrentMonth());
+
+            // Test entered month is first month added to map.
+            if(data.getBillsMap().isEmpty()) {
+                System.out.println("mainController.addNewMonthDialog() map is currently empty - first month added");
+                data.getBillsMap().put(data.getCurrentMonth(), FXCollections.observableArrayList());
+            } else {
+                if (data.getBillsMap().containsKey(data.getCurrentMonth())) { // Month already exists.
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("The month entered already exists for this year!!");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Please try adding another month again.");
+                    alert.showAndWait();
+                    return;
+                } else {
+                    System.out.println("mainController.addNewMonthDialog() new month added to currently populated map");
+                    data.getBillsMap().put(data.getCurrentMonth(), FXCollections.observableArrayList());
+                }
+            }
+
+            showPersonDetails(null); // Clear persons details
+            // ** load bills for that month in tableview ***
+            data.setBills(data.getBillsMap().get(data.getCurrentMonth()));
+            billsTable.setItems(data.getBills());
+        }
+    }
+
+    @FXML
+    public void changeMonthDialog() {
+        Dialog<ButtonType> dialog = new Dialog<>(); // Create new dialog box instance.
+        dialog.initOwner(mainPanel.getScene().getWindow());
+        dialog.setTitle("Change Existing Month");
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource("newMonthDialog.fxml"));
+        // Load dialog box.
+        try {
+            dialog.getDialogPane().setContent(fxmlLoader.load());
+
+        } catch(IOException e) {
+            System.out.println("Could not load the dialog");
+            e.printStackTrace();
+            return;
+        }
+
+        // Add buttons.
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+
+        Optional<ButtonType> result = dialog.showAndWait(); // Dialog box in modal mode.
+        // If content is present and button OK is pressed.
+        if(result.isPresent() && result.get() == ButtonType.OK) {
+            // Get access to the controller associated with the bill dialog fxml file.
+            NewMonthController newMonthController = fxmlLoader.getController(); // New month dialog controller retrieve.
+//          // *** Test to see if month does not already exist for this year ***
+            data.setCurrentMonth(newMonthController.getNewMonth());
+            // Test to see if entered month is already exists
+            if (data.getBillsMap().containsKey(data.getCurrentMonth())) { // Month already exists - change to that month.
+                showPersonDetails(null);
+                // ** load bills for that month in tableview ***
+                data.setBills(data.getBillsMap().get(data.getCurrentMonth()));
+                billsTable.setItems(data.getBills());
+            } else { // Month not in map - alert.
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("The month entered does not exist for this year!!");
+                alert.setHeaderText(null);
+                alert.setContentText("Please try changing month again.");
+                alert.showAndWait();
+                return;
+            }
+
+            // Display current month that bills are for.
+            monthLabel.setText(data.getCurrentMonth());
+        }
+    }
 }

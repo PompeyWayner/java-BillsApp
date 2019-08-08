@@ -10,12 +10,15 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
-/** class BillData holds the list of Bill objects and
+/** class BillData holds a Map. The key is the month and the value
+ * is the the list of Bill objects. There are also methods to
  * performs Read/Write operations to file in XML format.
  *
  * @author Wayne Sandford
- * @version 04-07-2019 02
+ * @version 08-08-2019 02
  */
 public class BillData {
 
@@ -29,16 +32,40 @@ public class BillData {
     private static final String DATE_CHANGED = "date_changed";
     private static final String PREVIOUS_AMOUNT = "previous_amount";
     private static final String NOTES = "notes";
+    private static final String MONTH = "month";
 
     private ObservableList<Bill> bills; // Holds Bill objects
+    private Map<String, ObservableList<Bill>> billsMap; // Holds each month of Bills.
+    public static String currentMonth; // Holds current month of bills being displayed.
 
     // Constructor
     public BillData() {
         bills = FXCollections.observableArrayList();
+        billsMap = new HashMap<>();
     }
 
     public ObservableList<Bill> getBills() {
         return bills;
+    }
+
+    public void setBills(ObservableList<Bill> bills) {
+        this.bills = bills;
+    }
+
+    public String getCurrentMonth() {
+        return currentMonth;
+    }
+
+    public void setCurrentMonth(String currentMonth) {
+        this.currentMonth = currentMonth;
+    }
+
+    public Map<String, ObservableList<Bill>> getBillsMap() {
+        return billsMap;
+    }
+
+    public void setBillsMap(Map<String, ObservableList<Bill>> billsMap) {
+        this.billsMap = billsMap;
     }
 
     /**
@@ -50,11 +77,56 @@ public class BillData {
     }
 
     /**
+     * Add a new month to the map and set up a empty Bill list.
+     * @param aMonth
+     */
+    public void addNewMonth(String aMonth) {
+
+        billsMap.put(aMonth, bills);
+    }
+
+    /**
      * Remove a bill.
      * @param bill a Bill object to remove from List of Bills.
      */
     public void deleteBill(Bill bill) {
         bills.remove(bill);
+    }
+
+    /**
+     * Add current Bill object to the correct month.
+     * @param aBill a Bill object to be placed in correct month.
+     */
+    public void addToCorrectMonth(Bill aBill) {
+        System.out.println("start of BillData.addToCorrectMonth" + aBill.toString());
+        // Test for empty Map - and add first key entry if necessary.
+        if(billsMap.isEmpty()) {
+            billsMap.put(aBill.getMonth(), FXCollections.observableArrayList());
+            billsMap.get(aBill.getMonth()).add(aBill);
+            this.setCurrentMonth(aBill.getMonth());
+            System.out.println("BillData.addToCurrentMonth empty map so current month added");
+        } else { // Bill object month already in map
+            if(billsMap.containsKey(aBill.getMonth())) {
+                billsMap.get(aBill.getMonth()).add(aBill);
+                System.out.println("BillData.addToCurrentMonth - month already exists bill added");
+            } else { // Month does not exist in currently populated map.
+                billsMap.put(aBill.getMonth(), FXCollections.observableArrayList());
+                billsMap.get(aBill.getMonth()).add(aBill);
+                System.out.println("BillData.addToCurrentMonth - new month added - bill added");
+            }
+        }
+    }
+
+    /**
+     * Test method that display contents of map.
+     */
+    public void displayMap() {
+        for(String eachMonth : billsMap.keySet()) {
+            System.out.println("Month : " + eachMonth);
+            for(Bill eachBill : this.billsMap.get(eachMonth)) {
+                System.out.println(eachBill.toString());
+            }
+        }
     }
 
     /**
@@ -75,7 +147,7 @@ public class BillData {
 
                 if (event.isStartElement()) {
                     StartElement startElement = event.asStartElement();
-                    // If we have a contact item, we create a new contact
+                    // If we have a bill item, we create a new bill
                     if (startElement.getName().getLocalPart().equals(BILL)) {
                         bill = new Bill();
                         continue;
@@ -154,13 +226,22 @@ public class BillData {
                         continue;
                     }
 
+                    if (event.isStartElement()) {
+                        if (event.asStartElement().getName().getLocalPart()
+                                .equals(MONTH)) {
+                            event = eventReader.nextEvent();
+                            bill.setMonth(event.asCharacters().getData());
+                            continue;
+                        }
+                    }
+
                 }
 
-                // If we reach the end of a contact element, we add it to the list
+                // If we reach the end of a contact element, we add it to the list.
                 if (event.isEndElement()) {
                     EndElement endElement = event.asEndElement();
                     if (endElement.getName().getLocalPart().equals(BILL)) {
-                        bills.add(bill);
+                        addToCorrectMonth(bill);
                     }
                 }
             }
@@ -171,6 +252,9 @@ public class BillData {
         catch (XMLStreamException e) {
             e.printStackTrace();
         }
+
+        // Initialise first month of map as the default to show on start up
+        //this.bills = billsMap.get(this.getCurrentMonth()); ** Remove on next cleanup
     }
 
     /**
@@ -193,12 +277,16 @@ public class BillData {
             eventWriter.add(end);
 
             StartElement contactsStartElement = eventFactory.createStartElement("",
-                    "", "contacts");
+                    "", "bills");
             eventWriter.add(contactsStartElement);
             eventWriter.add(end);
 
-            for (Bill bill: bills) {
-                saveBill(eventWriter, eventFactory, bill);
+            // Save each Bill object from each Month.
+            for(String eachMonth : billsMap.keySet()) {
+                System.out.println(eachMonth);
+                for(Bill bill : billsMap.get(eachMonth)) {
+                    saveBill(eventWriter, eventFactory, bill);
+                }
             }
 
             eventWriter.add(eventFactory.createEndElement("", "", "bills"));
@@ -247,6 +335,7 @@ public class BillData {
         createNode(eventWriter, DATE_CHANGED, formattedString);
         createNode(eventWriter, PREVIOUS_AMOUNT, Double.toString(bill.getPreviousAmount()));
         createNode(eventWriter, NOTES, bill.getNotes());
+        createNode(eventWriter, MONTH, bill.getMonth());
 
         eventWriter.add(eventFactory.createEndElement("", "", BILL));
         eventWriter.add(end);

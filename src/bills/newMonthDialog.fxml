@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import java.lang.*?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.collections.*?>
+
+<DialogPane prefHeight="123.0" prefWidth="417.0" xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="bills.NewMonthController">
+   <content>
+      <Pane prefHeight="200.0" prefWidth="200.0">
+         <children>
+            <Label layoutX="67.0" layoutY="26.0" text="Month Name" />
+            <ChoiceBox layoutX="192.0" layoutY="22.0" prefWidth="150.0" fx:id="choiceId">
+               <items>
+                  <FXCollections fx:factory="observableArrayList">
+                     <String fx:value="January" />
+                     <String fx:value="February" />
+                     <String fx:value="March" />
+                     <String fx:value="April" />
+                     <String fx:value="May" />
+                     <String fx:value="June" />
+                     <String fx:value="July" />
+                     <String fx:value="August" />
+                     <String fx:value="September" />
+                     <String fx:value="October" />
+                     <String fx:value="November" />
+                     <String fx:value="December" />
+                  </FXCollections>
+               </items>
+            </ChoiceBox>
+         </children>
+      </Pane>
+   </content>
+</DialogPane>
