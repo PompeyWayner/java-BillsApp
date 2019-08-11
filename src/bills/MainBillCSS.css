@@ -5,3 +5,91 @@
 #dateColumn {
     -fx-alignment: CENTER;
 }
+
+.background {
+    -fx-background-color: #1d1d1d;
+}
+
+.table-view {
+    -fx-base: #1d1d1d;
+    -fx-control-inner-background: #1d1d1d;
+    -fx-background-color: #1d1d1d;
+    -fx-table-cell-border-color: transparent;
+    -fx-table-header-border-color: transparent;
+    -fx-padding: 5;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header .label {
+    -fx-font-size: 12pt;
+    -fx-font-family: "Segoe UI Light";
+    -fx-text-fill: white;
+    -fx-alignment: center;
+    -fx-opacity: 1.5;
+   }
+
+#gpane {
+    -fx-background-color: #1d1d1d;
+}
+
+#apane {
+    -fx-background-color: #1d1d1d;
+}
+
+.label {
+-fx-text-fill: white;
+    }
+
+#billDetailsLabel {
+    -fx-font-size: 12pt;
+    -fx-font-family: "Segoe UI Light";
+    -fx-text-fill: white;
+    -fx-alignment: center;
+    -fx-opacity: 1.5;
+}
+
+#anchorPaneTableViewMonth {
+    -fx-background-color: #1d1d1d;
+}
+
+.menu-bar {
+    -fx-background-color: derive(#1d1d1d,25%);
+}
+
+.context-menu {
+    -fx-background-color: derive(#1d1d1d,50%);
+}
+
+.menu-bar .label {
+    -fx-font-size: 11pt;
+    -fx-font-family: "Segoe UI Light";
+    -fx-text-fill: white;
+    -fx-opacity: 0.9;
+}
+
+#totalPane {
+    -fx-background-color: derive(#1d1d1d,25%);
+}
+
+
+#tLabel {
+    -fx-font-size: 12pt;
+        -fx-font-family: "Segoe UI Light";
+        -fx-text-fill: white;
+        -fx-opacity: 0.9;
+}
+
+#totalLabel {
+    -fx-font-size: 12pt;
+    -fx-font-family: "Segoe UI Light";
+    -fx-text-fill: white;
+    -fx-opacity: 0.9;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+#bottomAnchor {
+    -fx-background-color: derive(#1d1d1d,25%);
+}

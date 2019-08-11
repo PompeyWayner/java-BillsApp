@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -8,20 +9,17 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
-            prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:id="mainPanel" fx:controller="bills.mainController" stylesheets="@MainBillCSS.css">
+<AnchorPane fx:id="mainPanel" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@MainBillCSS.css" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bills.mainController">
    <children>
-      <VBox layoutX="171.0" layoutY="73.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
-            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox layoutX="171.0" layoutY="73.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <MenuBar>
               <menus>
@@ -32,16 +30,40 @@
                         <MenuItem mnemonicParsing="false" text="Save" />
                         <MenuItem mnemonicParsing="false" text="Save As" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="About" onAction="#aboutHandler"/>
+                        <MenuItem mnemonicParsing="false" onAction="#aboutHandler" text="About" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Exit" onAction="#handleExit"/>
+                        <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
                   </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Date">
                   <items>
-                    <MenuItem mnemonicParsing="false" text="Change Month Of Current Year" onAction="#changeMonthDialog"/>
-                        <MenuItem mnemonicParsing="false" text="Add New Month Of Current Year" onAction="#addNewMonthDialog"/>
-                        <MenuItem mnemonicParsing="false" text="Delete Current Month of Current Year" />
+                    <Menu mnemonicParsing="false"  text="Change Month Of Current Year">
+                           <items>
+                              <MenuItem mnemonicParsing="false" onAction="#changeMonthDialog" >
+                                 <graphic>
+                                    <ComboBox  fx:id="monthChoice" prefWidth="120.0" />
+                                 </graphic>
+                              </MenuItem>
+                           </items>
+                    </Menu>
+                      <Menu mnemonicParsing="false"  text="Add New Month To Current Year">
+                          <items>
+                              <MenuItem mnemonicParsing="false" onAction="#addNewMonthDialog" >
+                                  <graphic>
+                                      <ComboBox  fx:id="addMonthChoice" prefWidth="120.0" />
+                                  </graphic>
+                              </MenuItem>
+                          </items></Menu>
+                      <MenuItem mnemonicParsing="false" text="Delete Current Month" onAction="#deleteCurrentMonth"/>
+                        <Menu mnemonicParsing="false" text="Delete Another Month" >
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#deleteAnotherMonth" >
+                                    <graphic>
+                                        <ComboBox  fx:id="deleteMonthChoice" prefWidth="120.0" />
+                                    </graphic>
+                                </MenuItem>
+                            </items>
+                        </Menu>
                         <Menu mnemonicParsing="false" text="Change Year">
                           <items>
                             <MenuItem mnemonicParsing="false" text="Change Year" />
@@ -53,9 +75,9 @@
                 </Menu>
                   <Menu mnemonicParsing="false" text="Bill">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Add..." onAction="#showAddBillDialog"/>
-                        <MenuItem mnemonicParsing="false" text="Edit..." onAction="#showEditBillDialog"/>
-                        <MenuItem mnemonicParsing="false" text="Delete..." onAction="#deleteBill"/>
+                      <MenuItem mnemonicParsing="false" onAction="#showAddBillDialog" text="Add..." />
+                        <MenuItem mnemonicParsing="false" onAction="#showEditBillDialog" text="Edit..." />
+                        <MenuItem mnemonicParsing="false" onAction="#deleteBill" text="Delete..." />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Bank">
@@ -65,45 +87,46 @@
                   </Menu>
                   <Menu mnemonicParsing="false" text="Exit">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Exit Program" onAction="#handleExit"/>
+                      <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit Program" />
                     </items>
                   </Menu>
               </menus>
             </MenuBar>
-            <SplitPane dividerPositions="0.4431438127090301" prefHeight="345.0" prefWidth="600.0">
+            <SplitPane dividerPositions="0.46" prefHeight="351.0" prefWidth="600.0">
               <items>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                <AnchorPane fx:id="anchorPaneTableViewMonth" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                      <children>
-                        <TableView layoutX="37.0" layoutY="27.0" prefHeight="316.0" prefWidth="262.0"
-                                   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0" fx:id="billsTable">
+                        <TableView fx:id="billsTable" layoutX="37.0" layoutY="27.0" prefHeight="316.0" prefWidth="262.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
+                            <placeholder>
+                                <Label text="No Month Shown"/>
+                            </placeholder>
                           <columns>
-                            <TableColumn prefWidth="97.0" text="Name" >
+                            <TableColumn prefWidth="97.0" text="Name">
                               <cellValueFactory>
-                                  <PropertyValueFactory property="name"/>
+                                  <PropertyValueFactory property="name" />
                               </cellValueFactory>
                             </TableColumn>
-                            <TableColumn prefWidth="70.0" text="Date Due" fx:id="dateColumn">
+                            <TableColumn fx:id="dateColumn" prefWidth="70.0" text="Date Due">
                               <cellValueFactory>
-                                  <PropertyValueFactory property="dateOfPayment"/>
+                                  <PropertyValueFactory property="dateOfPayment" />
                               </cellValueFactory>
                             </TableColumn>
-                              <TableColumn prefWidth="92.0" text="Amount" fx:id="amountColumn">
+                              <TableColumn fx:id="amountColumn" prefWidth="92.0" text="Amount">
                               <cellValueFactory>
-                                  <PropertyValueFactory property="amount"/>
+                                  <PropertyValueFactory property="amount" />
                               </cellValueFactory>
                               </TableColumn>
                           </columns>
                         </TableView>
                         <Label layoutX="32.0" layoutY="6.0" prefHeight="17.0" prefWidth="55.0" text="Bills For: " />
-                        <Label layoutX="101.0" layoutY="6.0" prefHeight="17.0" prefWidth="60.0" fx:id="monthLabel" />
-                        <Label layoutX="170.0" layoutY="6.0" text="Year" />
+                        <Label fx:id="monthLabel" layoutX="105.0" layoutY="6.0" prefHeight="17.0" prefWidth="60.0" />
+                        <Label layoutX="205.0" layoutY="6.0" text="Year" />
                      </children>
                   </AnchorPane>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                <AnchorPane fx:id="apane" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                      <children>
-                        <Label layoutX="140.0" layoutY="14.0" text="Bill Details" />
-                        <GridPane layoutX="19.0" layoutY="38.0" prefHeight="281.0" prefWidth="307.0" fx:id="gpane">
+                        <Label fx:id="billDetailsLabel" layoutX="130.0" layoutY="14.0" text="Bill Details" />
+                        <GridPane fx:id="gpane" layoutX="19.0" layoutY="38.0" prefHeight="281.0" prefWidth="307.0">
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -121,30 +144,33 @@
                            <children>
                               <Label text="Name" />
                               <Label text="Date Due" GridPane.rowIndex="1" />
-                              <Label text="Amount" GridPane.rowIndex="2" />
+                              <Label text="Amount (£)" GridPane.rowIndex="2" />
                               <Label text="Taken From" GridPane.rowIndex="3" />
                               <Label text="Date Created" GridPane.rowIndex="4" />
                               <Label text="Last Changed" GridPane.rowIndex="5" />
                               <Label text="Previous Amount" GridPane.rowIndex="6" />
                               <Label text="Notes" GridPane.rowIndex="7" />
-                              <Label GridPane.columnIndex="1" fx:id="nameLabel"/>
-                              <Label GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="dateLabel"/>
-                              <Label GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="amountLabel"/>
-                              <Label GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="fromAccountLabel"/>
-                              <Label GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="startDateLabel"/>
-                              <Label GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="changedDateLabel"/>
-                              <Label GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="previousAmountLabel"/>
-                              <Label GridPane.columnIndex="1" GridPane.rowIndex="7" fx:id="notesLabel"/>
+                              <Label fx:id="nameLabel" GridPane.columnIndex="1" />
+                              <Label fx:id="dateLabel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Label fx:id="amountLabel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <Label fx:id="fromAccountLabel" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <Label fx:id="startDateLabel" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                              <Label fx:id="changedDateLabel" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                              <Label fx:id="previousAmountLabel" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                              <Label fx:id="notesLabel" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                            </children>
                         </GridPane>
                      </children>
                   </AnchorPane>
               </items>
             </SplitPane>
-            <AnchorPane prefHeight="31.0" prefWidth="600.0" fx:id="bottomanchor">
+            <AnchorPane fx:id="bottomAnchor" prefHeight="16.0" prefWidth="600.0">
                <children>
-                  <Label layoutX="133.0" layoutY="7.0" text="Total" fx:id="tLabel"/>
-                  <Label layoutX="214.0" layoutY="7.0" fx:id="totalLabel"/>
+                  <Pane fx:id="totalPane" layoutY="1.0" prefHeight="25.0" prefWidth="278.0">
+                     <children>
+                        <Label fx:id="tLabel" layoutX="126.0" layoutY="-2.0" prefHeight="29.0" prefWidth="50.0" text="Total" />
+                        <Label fx:id="totalLabel" layoutX="212.0" prefHeight="25.0" prefWidth="50.0" />
+                     </children></Pane>
                </children>
             </AnchorPane>
          </children>

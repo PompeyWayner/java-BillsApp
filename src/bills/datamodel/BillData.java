@@ -10,8 +10,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /** class BillData holds a Map. The key is the month and the value
  * is the the list of Bill objects. There are also methods to
@@ -37,11 +36,13 @@ public class BillData {
     private ObservableList<Bill> bills; // Holds Bill objects
     private Map<String, ObservableList<Bill>> billsMap; // Holds each month of Bills.
     public static String currentMonth; // Holds current month of bills being displayed.
+    private Set<String> monthsSet; // Holds all months that have been added.
 
     // Constructor
     public BillData() {
         bills = FXCollections.observableArrayList();
         billsMap = new HashMap<>();
+        monthsSet = new HashSet<>();
     }
 
     public ObservableList<Bill> getBills() {
@@ -57,7 +58,7 @@ public class BillData {
     }
 
     public void setCurrentMonth(String currentMonth) {
-        this.currentMonth = currentMonth;
+        BillData.currentMonth = currentMonth;
     }
 
     public Map<String, ObservableList<Bill>> getBillsMap() {
@@ -66,6 +67,10 @@ public class BillData {
 
     public void setBillsMap(Map<String, ObservableList<Bill>> billsMap) {
         this.billsMap = billsMap;
+    }
+
+    public Set<String> getMonthsSet() {
+        return monthsSet;
     }
 
     /**
@@ -78,7 +83,7 @@ public class BillData {
 
     /**
      * Add a new month to the map and set up a empty Bill list.
-     * @param aMonth
+     * @param aMonth a String representing month as key value to be added to the map.
      */
     public void addNewMonth(String aMonth) {
 
@@ -94,10 +99,11 @@ public class BillData {
     }
 
     /**
+     * Helper method.
      * Add current Bill object to the correct month.
      * @param aBill a Bill object to be placed in correct month.
      */
-    public void addToCorrectMonth(Bill aBill) {
+    private void addToCorrectMonth(Bill aBill) {
         System.out.println("start of BillData.addToCorrectMonth" + aBill.toString());
         // Test for empty Map - and add first key entry if necessary.
         if(billsMap.isEmpty()) {
@@ -231,6 +237,7 @@ public class BillData {
                                 .equals(MONTH)) {
                             event = eventReader.nextEvent();
                             bill.setMonth(event.asCharacters().getData());
+                            monthsSet.add(bill.getMonth()); // Add month to monthsSet.
                             continue;
                         }
                     }
@@ -242,7 +249,7 @@ public class BillData {
                 if (event.isEndElement()) {
                     EndElement endElement = event.asEndElement();
                     if (endElement.getName().getLocalPart().equals(BILL)) {
-                        addToCorrectMonth(bill);
+                        this.addToCorrectMonth(bill);
                     }
                 }
             }

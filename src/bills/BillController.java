@@ -1,6 +1,7 @@
 package bills;
 
 import bills.datamodel.Bill;
+import bills.datamodel.BillData;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import java.time.LocalDate;
@@ -24,6 +25,7 @@ public class BillController {
     private ComboBox<String> bankAccount; // Value injected by FXMLLoader
     @FXML
     private TextArea notesField;
+
 
     private Bill currentBill = new Bill(); // Will hold details from dialog box entry
     private double previousAmount;
@@ -81,7 +83,7 @@ public class BillController {
 
         // Create new Bill object from entered ino
         LocalDate todaysDate = LocalDate.now();
-        return new Bill(name, dueDate, amount, chosenAccount, notes, todaysDate, todaysDate, 0.00);
+        return new Bill(name, dueDate, amount, chosenAccount, notes, todaysDate, todaysDate, 0.00, BillData.currentMonth);
     }
 
     /**
@@ -94,7 +96,8 @@ public class BillController {
     public void editBill(Bill bill) {
         nameField.setText(bill.getName());
         dateField.setValue(bill.getDateOfPayment());
-        amountField.setText(Double.toString(bill.getAmount()));
+        //amountField.setText(Double.toString(bill.getAmount()));
+        amountField.setText(String.format("%.2f",bill.getAmount()));
         bankAccount.setValue(bill.getBankAccount());
         notesField.setText(bill.getNotes());
         previousAmount = bill.getAmount(); // Current amount stored in case changed
@@ -142,6 +145,7 @@ public class BillController {
 
         LocalDate todaysDate = LocalDate.now();
         bill.setDateChanged(todaysDate);
+        bill.setPreviousAmount(this.previousAmount);
 
         return true; // Valid updated bill.
     }
@@ -177,5 +181,4 @@ public class BillController {
         }
         return false;
     }
-
 }
