@@ -11,10 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Controller for MainWindow.fxml
@@ -60,8 +57,13 @@ public class mainController {
     private ComboBox<String> deleteMonthChoice;
 
     private BillData data; // class BillData variable.
-    private final List<String> monthsOfYear = new ArrayList(Arrays.asList("January", "February", "March", "April",
-                "May", "June", "July", "August", "September", "October", "November", "December"));
+
+    private final String[] monthsOfYear = {"January", "February", "March", "April",
+            "May", "June", "July", "August", "September", "October", "November", "December"};
+
+    private ObservableList<String> options = FXCollections.observableArrayList(); // Change month list for ComboBox.
+    private ObservableList<String> addMonthOptions = FXCollections.observableArrayList(); // Add month list for ComboBox.
+    private ObservableList<String> deleteMonthOptions = FXCollections.observableArrayList(); // Delete another month list for ComboBox.
 
     /**
      * Initialise variables, set up bill list.
@@ -117,37 +119,10 @@ public class mainController {
         totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
         monthLabel.setText(data.getCurrentMonth()); // Update month label.
 
-        // Set up current list of months for change month ComboBox on menu.
-        ObservableList<String> options = FXCollections.observableArrayList();
-        options.addAll(data.getMonthsSet()); // Add current used months from set to the to list.
-        monthChoice.getItems().addAll(options); // Add current months to change month ComboBox.
-        if(!options.isEmpty()) {
-            monthChoice.setValue(options.get(0)); // Display first month in list as a default.
-        }
-
-        // Set up current list of months for add month ComboBox on menu.
-        ObservableList<String> addMonthOptions = FXCollections.observableArrayList();
-        for(String eachMonth : this.monthsOfYear) { // Not in current months list.
-            if(data.getMonthsSet().contains(eachMonth)) {
-                System.out.println("*not added**" + eachMonth);
-            }
-            else {
-                addMonthOptions.add(eachMonth);
-            }
-        }
-        addMonthChoice.getItems().addAll(addMonthOptions); // Add month to ComboBox.
-        if(!addMonthOptions.isEmpty()) {
-            addMonthChoice.setValue(addMonthOptions.get(0)); // Display first month in list as a default.
-        }
-
-        // Set up current list of moths for delete another month ComboBox.
-        ObservableList<String> deleteMonthOptions = FXCollections.observableArrayList();
-        deleteMonthOptions.addAll(data.getMonthsSet()); // Add current used months from set to the to list.
-        deleteMonthChoice.getItems().addAll(deleteMonthOptions); // Add month to ComboBox.
-        if(!deleteMonthOptions.isEmpty()) {
-            deleteMonthChoice.setValue(deleteMonthOptions.get(0)); // Display first month in list as a default.
-        }
-
+        // Set up ComboBox data.
+        updateAddComboBox();
+        updateChangeAnotherMonthComboBox();
+        updateDeleteAnotherMonthComboBox();
     }
 
     /**
@@ -161,7 +136,6 @@ public class mainController {
             // Fill the labels with info from the bill object.
             nameLabel.setText(bill.getName());
             dateLabel.setText(DateUtil.format(bill.getDateOfPayment()));
-            //amountLabel.setText(Double.toString(bill.getAmount()));
             amountLabel.setText(String.format("%.2f",bill.getAmount()));
             fromAccountLabel.setText(bill.getBankAccount());
             startDateLabel.setText(DateUtil.format(bill.getDateStarted()));
@@ -187,7 +161,7 @@ public class mainController {
      * Event handler for add menu item.
      */
     @FXML
-    public void showAddBillDialog() {
+    public boolean showAddBillDialog() {
         Dialog<ButtonType> dialog = new Dialog<>(); // Create new dialog box instance.
         dialog.initOwner(mainPanel.getScene().getWindow());
         dialog.setTitle("Add New Bill");
@@ -200,7 +174,7 @@ public class mainController {
         } catch(IOException e) {
             System.out.println("Could not load the dialog");
             e.printStackTrace();
-            return;
+            return false;
         }
 
         // Add buttons.
@@ -217,17 +191,14 @@ public class mainController {
             // Test to see if newBill is valid - add new Bill object to current Month.
             if(newBill != null) {
                 for(String eachMonth : data.getBillsMap().keySet()) {
-                    System.out.println("mainController.showAddBillDialog()" + eachMonth);
                     if (newBill.getMonth().equals(eachMonth)) {
                         data.getBillsMap().get(eachMonth).add(newBill);
-                        System.out.println("mainController.showAddBillDialog" + newBill.toString());
                     }
                 }
                 data.saveBills(); // Write updated list to file.
-
                 // Update current total of bill amounts and display in appropriate label
-                //totalLabel.setText(Double.toString(data.calculateTotal())); // Set up current bills total.
                 totalLabel.setText(String.format("%.2f", data.calculateTotal()));
+                return true;
 
             } else { // Invalid object - null returned
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -237,6 +208,7 @@ public class mainController {
                 alert.showAndWait();
             }
         }
+        return false;
     }
 
     /**
@@ -359,17 +331,30 @@ public class mainController {
         System.out.println("mainController.addNewMonthDialog - just entered!!!");
         String month = addMonthChoice.getValue(); // Retrieve chosen month.
         data.getBillsMap().put(month, FXCollections.observableArrayList()); // Add month to Map
+        String tempMonth = data.getCurrentMonth(); // Store last month before updating to new current month;
         data.setCurrentMonth(month); // Set currentMonth to entered month
-        data.getMonthsSet().add(month); // Add new month to monthsSet.
-        this.showAddBillDialog(); // New month added therefore a Bill object needs to be added.
-        showPersonDetails(null); // Clear persons details
-        data.setBills(data.getBillsMap().get(month)); // Load bill list with correct month bills.
-        billsTable.setItems(data.getBills()); // Set up TableView to list bills
-        billsTable.getSelectionModel().selectFirst();
-        monthLabel.setText(month); // Update month label.
-        totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
-        monthChoice.getItems().add(data.getCurrentMonth()); // Update change month ComboBox on menu.
-        addMonthChoice.getItems().remove(data.getCurrentMonth()); // Update add month ComboBox on menu.
+
+        // New month added therefore a valid Bill object needs to be added.
+        if(this.showAddBillDialog()) {
+            data.getMonthsSet().add(month); // Add new month to monthsSet.
+            showPersonDetails(null); // Clear persons details
+            data.setBills(data.getBillsMap().get(month)); // Load bill list with correct month bills.
+            billsTable.setItems(data.getBills()); // Set up TableView to list bills
+            billsTable.getSelectionModel().selectFirst();
+            monthLabel.setText(month); // Update month label.
+            totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
+            addMonthChoice.getItems().remove(data.getCurrentMonth()); // Update add month ComboBox on menu.
+            updateChangeAnotherMonthComboBox();
+            updateDeleteAnotherMonthComboBox();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle(" Invalid first Bill entry.");
+            alert.setHeaderText(null);
+            alert.setContentText("The month " + month + " could not be added. Please try adding new month again.");
+            alert.showAndWait();
+            data.getBillsMap().remove(month);
+            data.setCurrentMonth(tempMonth);
+        }
     }
 
     /**
@@ -398,24 +383,36 @@ public class mainController {
     @FXML
     public void deleteCurrentMonth() {
 
-        // Suitable record to delete.
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); // Confirmation alert.
-        alert.setTitle("Delete Current Month");
-        alert.setHeaderText(null);
-        alert.setContentText("Are you sure yo want to delete the current month " + data.getCurrentMonth() +
-                " and all associated bills with this month?"); // Final check if month to be deleted.
+        if (data.getCurrentMonth() != null) {
+            // Suitable record to delete.
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION); // Confirmation alert.
+            alert.setTitle("Delete Current Month");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure yo want to delete the current month " + data.getCurrentMonth() +
+                    " and all associated bills with this month?"); // Final check if month to be deleted.
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) { // Delete
-            data.getBillsMap().remove(data.getCurrentMonth()); // Remove map entry
-            data.getMonthsSet().remove(data.getCurrentMonth()); // Remove current month from monthsSet.
-            showPersonDetails(null); // Clear person details.
-            billsTable.setItems(null); // Clear TableView
-            monthLabel.setText(null); // Clear month label.
-            data.saveBills(); // Write updated list to file
-            totalLabel.setText("0.00"); // Set up current bills total.
-            monthChoice.getItems().remove(data.getCurrentMonth()); // date change month ComboBox on menu.
-            addMonthChoice.getItems().add(data.getCurrentMonth()); // Update add month ComboBox on menu.
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) { // Delete
+                data.getBillsMap().remove(data.getCurrentMonth()); // Remove map entry
+                data.getMonthsSet().remove(data.getCurrentMonth()); // Remove current month from monthsSet.
+                showPersonDetails(null); // Clear person details.
+                billsTable.setItems(null); // Clear TableView
+                monthLabel.setText(null); // Clear month label.
+                data.saveBills(); // Write updated list to file
+                totalLabel.setText("0.00"); // Set up current bills total.
+                // Update ComboBoxes.
+                monthChoice.getItems().remove(data.getCurrentMonth());
+                deleteMonthChoice.getItems().remove(data.getCurrentMonth());
+                updateAddComboBox();
+                data.setCurrentMonth(null);
+            }
+        } else {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("There is no current month");
+            alert.setHeaderText(null);
+            alert.setContentText("Choose <Delete Another Month> option to remove another Month");
+            alert.showAndWait();
+            return;
         }
     }
 
@@ -438,12 +435,72 @@ public class mainController {
             System.out.println("Alert Delete confirmed");
             data.getBillsMap().remove(month); // Remove map entry.
             data.getMonthsSet().remove(month); // Remove selected month from monthsSet.
-            monthChoice.getItems().remove((month)); // Update change month ComboBox on menu;
-            addMonthChoice.getItems().add(month); // Update add month ComboBox on menu.
             billsTable.setItems(null); // Clear TableView
             showPersonDetails(null);  // Clear persons details.
             totalLabel.setText("0.00"); // Set up current bills total.
             monthLabel.setText(null); // Update month label.
+            monthChoice.getItems().remove((month)); // Update change month ComboBox on menu;
+            updateAddComboBox();
+        }
+    }
+
+    /**
+     * Helper method.
+     * Sorts the current used months into correct calendar months order.
+     * This has been created due to the fact the current used months in stored in a set.
+     * @return sortedMonthList a List of String containing the current used months.
+     */
+    private List<String> sortedMonths(Set<String> monthsSet) {
+        List<String> sortedMonthsList = new ArrayList<>();
+
+        for(String eachMonth : this.monthsOfYear) {
+            for (String eachCurrentMonth : monthsSet) {
+                if(eachCurrentMonth.equals(eachMonth)) {
+                    sortedMonthsList.add(eachCurrentMonth);
+                    break;
+                }
+            }
+        }
+        return sortedMonthsList;
+    }
+
+    /**
+     * Update the months ComboBox that can be added in correct order.
+     */
+    private void updateAddComboBox() {
+        addMonthChoice.getItems().clear();
+        addMonthOptions.clear();
+        for(String eachMonth : this.monthsOfYear) { // Not in current months list.
+            if(!data.getMonthsSet().contains(eachMonth)) {
+                addMonthOptions.add(eachMonth);
+            }
+
+            options.addAll(this.sortedMonths(data.getMonthsSet()));
+
+        }
+        addMonthChoice.getItems().addAll(addMonthOptions); // Add month to ComboBox.
+        if(!addMonthOptions.isEmpty()) {
+            addMonthChoice.setValue(addMonthOptions.get(0)); // Display first month in list as a default.
+        }
+    }
+
+    private void updateDeleteAnotherMonthComboBox() {
+        deleteMonthChoice.getItems().clear();
+        deleteMonthOptions.clear();
+        deleteMonthOptions.addAll(this.sortedMonths(data.getMonthsSet())); // Delete current used months from set to the to list.
+        deleteMonthChoice.getItems().addAll(deleteMonthOptions); // Add month to ComboBox.
+        if(!deleteMonthOptions.isEmpty()) {
+            deleteMonthChoice.setValue(deleteMonthOptions.get(0)); // Display first month in list as a default.
+        }
+    }
+
+    private void updateChangeAnotherMonthComboBox() {
+        monthChoice.getItems().clear();
+        options.clear();
+        options.addAll(this.sortedMonths(data.getMonthsSet()));
+        monthChoice.getItems().addAll(options); // Add current months to change month ComboBox.
+        if(!options.isEmpty()) {
+            monthChoice.setValue(options.get(0)); // Display first month in list as a default.
         }
     }
 }

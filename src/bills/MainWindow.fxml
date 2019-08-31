@@ -37,29 +37,29 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Date">
                   <items>
-                    <Menu mnemonicParsing="false"  text="Change Month Of Current Year">
+                    <Menu mnemonicParsing="false" text="Change Month Of Current Year">
                            <items>
-                              <MenuItem mnemonicParsing="false" onAction="#changeMonthDialog" >
+                              <MenuItem mnemonicParsing="false" onAction="#changeMonthDialog">
                                  <graphic>
-                                    <ComboBox  fx:id="monthChoice" prefWidth="120.0" />
+                                    <ComboBox fx:id="monthChoice" prefWidth="120.0" />
                                  </graphic>
                               </MenuItem>
                            </items>
                     </Menu>
-                      <Menu mnemonicParsing="false"  text="Add New Month To Current Year">
+                      <Menu mnemonicParsing="false" text="Add New Month To Current Year">
                           <items>
-                              <MenuItem mnemonicParsing="false" onAction="#addNewMonthDialog" >
+                              <MenuItem mnemonicParsing="false" onAction="#addNewMonthDialog">
                                   <graphic>
-                                      <ComboBox  fx:id="addMonthChoice" prefWidth="120.0" />
+                                      <ComboBox fx:id="addMonthChoice" prefWidth="120.0" />
                                   </graphic>
                               </MenuItem>
                           </items></Menu>
-                      <MenuItem mnemonicParsing="false" text="Delete Current Month" onAction="#deleteCurrentMonth"/>
-                        <Menu mnemonicParsing="false" text="Delete Another Month" >
+                      <MenuItem mnemonicParsing="false" onAction="#deleteCurrentMonth" text="Delete Current Month" />
+                        <Menu mnemonicParsing="false" text="Delete Another Month">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#deleteAnotherMonth" >
+                                <MenuItem mnemonicParsing="false" onAction="#deleteAnotherMonth">
                                     <graphic>
-                                        <ComboBox  fx:id="deleteMonthChoice" prefWidth="120.0" />
+                                        <ComboBox fx:id="deleteMonthChoice" prefWidth="120.0" />
                                     </graphic>
                                 </MenuItem>
                             </items>
@@ -98,7 +98,7 @@
                      <children>
                         <TableView fx:id="billsTable" layoutX="37.0" layoutY="27.0" prefHeight="316.0" prefWidth="262.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
                             <placeholder>
-                                <Label text="No Month Shown"/>
+                                <Label text="No Month Shown" />
                             </placeholder>
                           <columns>
                             <TableColumn prefWidth="97.0" text="Name">
@@ -169,7 +169,7 @@
                   <Pane fx:id="totalPane" layoutY="1.0" prefHeight="25.0" prefWidth="278.0">
                      <children>
                         <Label fx:id="tLabel" layoutX="126.0" layoutY="-2.0" prefHeight="29.0" prefWidth="50.0" text="Total" />
-                        <Label fx:id="totalLabel" layoutX="212.0" prefHeight="25.0" prefWidth="50.0" />
+                        <Label fx:id="totalLabel" layoutX="179.0" prefHeight="25.0" prefWidth="83.0" />
                      </children></Pane>
                </children>
             </AnchorPane>
