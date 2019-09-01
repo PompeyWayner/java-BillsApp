@@ -10,3 +10,10 @@ Git Commit - 11-08-2019
 - Bug fixed when Bill amount has been edited and previous amount did not update.
 - Cleaning up of code.
 
+Git Commit - 31-08-2019
+- Improved the ComboBoxes for adding, changing and deleting months so they are always in correct month order.
+- Widened label for bill total so long amounts are displayed in full.
+
+Git Commit - 01-09-2019
+- New File and Open File options coded. Still maybe bugs.
+- Added dafault menu item to be implemented.

@@ -2,6 +2,8 @@ package bills.datamodel;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.stage.FileChooser;
+
 import javax.xml.stream.*;
 import javax.xml.stream.events.*;
 import java.io.FileInputStream;
@@ -138,12 +140,18 @@ public class BillData {
     /**
      * Load bills from XML file into bills list.
      */
-    public void loadBills() {
+    public void loadBills(String selectedFile) {
         try {
+            billsMap.clear();
+            //bills.clear();
+            monthsSet.clear();
+
+            System.out.println("BillData.loadBills selected file is " + selectedFile);
+
             // First, create a new XMLInputFactory
             XMLInputFactory inputFactory = XMLInputFactory.newInstance();
             // Setup a new eventReader
-            InputStream in = new FileInputStream(BILLS_FILE);
+            InputStream in = new FileInputStream(selectedFile);
             XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
             // read the XML document
             Bill bill = null;
@@ -261,8 +269,6 @@ public class BillData {
             e.printStackTrace();
         }
 
-        // Initialise first month of map as the default to show on start up
-        //this.bills = billsMap.get(this.getCurrentMonth()); ** Remove on next cleanup
     }
 
     /**
@@ -378,6 +384,7 @@ public class BillData {
         for(Bill aBill : this.bills){
             total += aBill.getAmount();
         }
+
         return total;
     }
 

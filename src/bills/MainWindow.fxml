@@ -25,10 +25,16 @@
               <menus>
                 <Menu mnemonicParsing="false" text="File">
                   <items>
-                    <MenuItem mnemonicParsing="false" text="New" />
-                        <MenuItem mnemonicParsing="false" text="Open" />
+                    <MenuItem mnemonicParsing="false" text="New" onAction="#newFileChooser"/>
+                        <MenuItem mnemonicParsing="false" text="Open" onAction="#openFileChooser"/>
                         <MenuItem mnemonicParsing="false" text="Save" />
                         <MenuItem mnemonicParsing="false" text="Save As" />
+                      <Menu mnemonicParsing="false" text="Default">
+                          <items>
+                              <MenuItem mnemonicParsing="false" text="Current" />
+                              <MenuItem mnemonicParsing="false" text="Change..." />
+                          </items>
+                      </Menu>
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#aboutHandler" text="About" />
                         <SeparatorMenuItem mnemonicParsing="false" />

@@ -9,7 +9,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -72,7 +77,7 @@ public class mainController {
 
         showPersonDetails(null); // Clear person details.
         data = new BillData(); // Create new BillData instance.
-        data.loadBills(); // Load the bills from file.
+        data.loadBills("billsFile.xml"); // Load default file with bills from file.
         data.setBills(data.getBillsMap().get(data.getCurrentMonth())); // Load List with default month to show
         System.out.println("mainController.initialise()");
         billsTable.setItems(data.getBills()); // Set up TableView to list bills of default month.
@@ -115,8 +120,9 @@ public class mainController {
                 }
             }
         });
-
-        totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
+        if(!data.getBillsMap().isEmpty()) {
+            totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
+        }
         monthLabel.setText(data.getCurrentMonth()); // Update month label.
 
         // Set up ComboBox data.
@@ -484,6 +490,9 @@ public class mainController {
         }
     }
 
+    /**
+     * Update the delete another month ComboBox.
+     */
     private void updateDeleteAnotherMonthComboBox() {
         deleteMonthChoice.getItems().clear();
         deleteMonthOptions.clear();
@@ -494,6 +503,9 @@ public class mainController {
         }
     }
 
+    /**
+     * Update the change to another month ComboBox.
+     */
     private void updateChangeAnotherMonthComboBox() {
         monthChoice.getItems().clear();
         options.clear();
@@ -502,5 +514,81 @@ public class mainController {
         if(!options.isEmpty()) {
             monthChoice.setValue(options.get(0)); // Display first month in list as a default.
         }
+    }
+
+    /**
+     * Event handler that handles selecting a file to open.
+     */
+    @FXML
+    public void openFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select location of file to open");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("XML files", "*.XML")
+        );
+        File selectedFile = fileChooser.showOpenDialog(null);
+
+        if (selectedFile != null) {
+            System.out.println("File selected: " + selectedFile.getName()); // *** delete when tested ***
+            // Load data from selected file and display
+            data.loadBills(selectedFile.getAbsolutePath());
+            data.setBills(data.getBillsMap().get(data.getCurrentMonth())); // Load List with default month to show
+            billsTable.setItems(data.getBills()); // Set up TableView to list bills of default month.
+            totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
+            monthLabel.setText(data.getCurrentMonth()); // Update month label.
+            updateAddComboBox();
+            updateChangeAnotherMonthComboBox();
+            updateDeleteAnotherMonthComboBox();
+        }
+        else {
+            System.out.println("File selection cancelled.");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("File selection Cancelled");
+            alert.setHeaderText(null);
+            alert.setContentText("No File Opened");
+            alert.showAndWait();
+
+        }
+    }
+
+    /**
+     * Event handler for creating a new file.
+     */
+    @FXML
+    public void newFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose location To Save File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("XML files", "*.XML")
+        );
+        File selectedFile = null;
+        while(selectedFile== null){
+            selectedFile = fileChooser.showSaveDialog(null);
+        }
+
+        File file = new File(selectedFile.getAbsolutePath());
+
+        System.out.println("New File name  is " + selectedFile.getAbsolutePath()); // *** remove after testing ***
+        PrintWriter outFile = null;
+        try {
+            outFile = new PrintWriter(file);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        outFile.close();
+
+        // Clear all bills data - if any.
+        data.getBillsMap().clear();
+        data.getMonthsSet().clear();
+        billsTable.setItems(null); // Clear TableView
+
+        showPersonDetails(null);  // Clear persons details.
+        totalLabel.setText("0.00"); // Set up current bills total.
+        monthLabel.setText(null); // Update month label.
+        updateAddComboBox();
+        updateChangeAnotherMonthComboBox();
+        updateDeleteAnotherMonthComboBox();
     }
 }
