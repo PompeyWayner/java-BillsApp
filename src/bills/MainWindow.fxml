@@ -27,12 +27,12 @@
                   <items>
                     <MenuItem mnemonicParsing="false" text="New" onAction="#newFileChooser"/>
                         <MenuItem mnemonicParsing="false" text="Open" onAction="#openFileChooser"/>
-                        <MenuItem mnemonicParsing="false" text="Save" />
-                        <MenuItem mnemonicParsing="false" text="Save As" />
+                        <MenuItem mnemonicParsing="false" text="Save" onAction="#saveFile"/>
+                        <MenuItem mnemonicParsing="false" text="Save As" onAction="#saveAsFileChooser"/>
                       <Menu mnemonicParsing="false" text="Default">
                           <items>
-                              <MenuItem mnemonicParsing="false" text="Current" />
-                              <MenuItem mnemonicParsing="false" text="Change..." />
+                              <MenuItem mnemonicParsing="false" text="Current" onAction="#currentDefaultFile"/>
+                              <MenuItem mnemonicParsing="false" text="Change..." onAction="#changeDefaultFile"/>
                           </items>
                       </Menu>
                         <SeparatorMenuItem mnemonicParsing="false" />

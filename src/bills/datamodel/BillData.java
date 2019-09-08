@@ -1,9 +1,9 @@
 package bills.datamodel;
 
+import bills.InfoAlert;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.stage.FileChooser;
-
 import javax.xml.stream.*;
 import javax.xml.stream.events.*;
 import java.io.FileInputStream;
@@ -23,7 +23,7 @@ import java.util.*;
  */
 public class BillData {
 
-    private static final String BILLS_FILE = "billsFile.xml";
+    private static final String BILLS_FILE = "defaultFileName.xml";
     private static final String BILL = "bill";
     private static final String NAME = "name";
     private static final String DATE_DUE = "date_due";
@@ -39,12 +39,14 @@ public class BillData {
     private Map<String, ObservableList<Bill>> billsMap; // Holds each month of Bills.
     public static String currentMonth; // Holds current month of bills being displayed.
     private Set<String> monthsSet; // Holds all months that have been added.
+    private String defaultFileName;
 
     // Constructor
     public BillData() {
-        bills = FXCollections.observableArrayList();
-        billsMap = new HashMap<>();
-        monthsSet = new HashSet<>();
+        this.bills = FXCollections.observableArrayList();
+        this.billsMap = new HashMap<>();
+        this.monthsSet = new HashSet<>();
+        this.defaultFileName = BILLS_FILE;
     }
 
     public ObservableList<Bill> getBills() {
@@ -67,12 +69,16 @@ public class BillData {
         return billsMap;
     }
 
-    public void setBillsMap(Map<String, ObservableList<Bill>> billsMap) {
-        this.billsMap = billsMap;
-    }
-
     public Set<String> getMonthsSet() {
         return monthsSet;
+    }
+
+    public String getDefaultFileName() {
+        return defaultFileName;
+    }
+
+    public void setDefaultFileName(String defaultFileName) {
+        this.defaultFileName = defaultFileName;
     }
 
     /**
@@ -106,21 +112,17 @@ public class BillData {
      * @param aBill a Bill object to be placed in correct month.
      */
     private void addToCorrectMonth(Bill aBill) {
-        System.out.println("start of BillData.addToCorrectMonth" + aBill.toString());
         // Test for empty Map - and add first key entry if necessary.
         if(billsMap.isEmpty()) {
             billsMap.put(aBill.getMonth(), FXCollections.observableArrayList());
             billsMap.get(aBill.getMonth()).add(aBill);
             this.setCurrentMonth(aBill.getMonth());
-            System.out.println("BillData.addToCurrentMonth empty map so current month added");
         } else { // Bill object month already in map
             if(billsMap.containsKey(aBill.getMonth())) {
                 billsMap.get(aBill.getMonth()).add(aBill);
-                System.out.println("BillData.addToCurrentMonth - month already exists bill added");
             } else { // Month does not exist in currently populated map.
                 billsMap.put(aBill.getMonth(), FXCollections.observableArrayList());
                 billsMap.get(aBill.getMonth()).add(aBill);
-                System.out.println("BillData.addToCurrentMonth - new month added - bill added");
             }
         }
     }
@@ -145,8 +147,6 @@ public class BillData {
             billsMap.clear();
             //bills.clear();
             monthsSet.clear();
-
-            System.out.println("BillData.loadBills selected file is " + selectedFile);
 
             // First, create a new XMLInputFactory
             XMLInputFactory inputFactory = XMLInputFactory.newInstance();
@@ -251,9 +251,7 @@ public class BillData {
                     }
 
                 }
-
                 // If we reach the end of a contact element, we add it to the list.
-
                 if (event.isEndElement()) {
                     EndElement endElement = event.asEndElement();
                     if (endElement.getName().getLocalPart().equals(BILL)) {
@@ -268,20 +266,19 @@ public class BillData {
         catch (XMLStreamException e) {
             e.printStackTrace();
         }
-
     }
 
     /**
      * Save bills to XML file.
      */
-    public void saveBills() {
+    public void saveBills(String selectedFile) {
 
         try {
             // create an XMLOutputFactory
             XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
             // create XMLEventWriter
             XMLEventWriter eventWriter = outputFactory
-                    .createXMLEventWriter(new FileOutputStream(BILLS_FILE));
+                    .createXMLEventWriter(new FileOutputStream(selectedFile));
             // create an EventFactory
             XMLEventFactory eventFactory = XMLEventFactory.newInstance();
             XMLEvent end = eventFactory.createDTD("\n");
@@ -378,14 +375,11 @@ public class BillData {
      * Calculate total of all the bills.
      */
     public double calculateTotal () {
-
         double total = 0.0;
 
         for(Bill aBill : this.bills){
             total += aBill.getAmount();
         }
-
         return total;
     }
-
 }

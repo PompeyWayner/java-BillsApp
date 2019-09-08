@@ -16,4 +16,11 @@ Git Commit - 31-08-2019
 
 Git Commit - 01-09-2019
 - New File and Open File options coded. Still maybe bugs.
-- Added dafault menu item to be implemented.
+- Added default menu item to be implemented.
+
+Git Commit - 08-09-2019
+- Save, SaveAs and Default File Current and Change Default File menu options implemented.
+- Default filename is stored in "default.txt" - on first ever start up or deletion of default file, a new default file
+  is created and called defaultFileName.xml .
+- Fixed bugs for New and Open File.
+- Refactored code so that the Alert notifications call a separate class.

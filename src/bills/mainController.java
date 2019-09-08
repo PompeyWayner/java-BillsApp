@@ -10,7 +10,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -77,7 +76,20 @@ public class mainController {
 
         showPersonDetails(null); // Clear person details.
         data = new BillData(); // Create new BillData instance.
-        data.loadBills("billsFile.xml"); // Load default file with bills from file.
+
+        // Load in default file.
+        data.setDefaultFileName(TextFileOperation.readDefaultFile());
+        if(data.getDefaultFileName() != null) { // File exists and something has been returned.
+            System.out.println("Default file found - file is " + data.getDefaultFileName());
+            data.loadBills(data.getDefaultFileName()); // Load default file with bills from file.
+        } else { // No default file, create one.
+            // CREATE NEW DEFAULT FILE WITH DEFAULT FILENAME IN IT.
+            File defaultTextFile = new File("C:\\Users\\wsand\\IdeaProjects\\BillsApp\\default.txt");
+            TextFileOperation.writeDefaultFile(defaultTextFile.getName(), data.getDefaultFileName());
+            data.loadBills(data.getDefaultFileName()); // Load default file with bills from file.
+        }
+
+
         data.setBills(data.getBillsMap().get(data.getCurrentMonth())); // Load List with default month to show
         System.out.println("mainController.initialise()");
         billsTable.setItems(data.getBills()); // Set up TableView to list bills of default month.
@@ -201,17 +213,12 @@ public class mainController {
                         data.getBillsMap().get(eachMonth).add(newBill);
                     }
                 }
-                data.saveBills(); // Write updated list to file.
-                // Update current total of bill amounts and display in appropriate label
-                totalLabel.setText(String.format("%.2f", data.calculateTotal()));
+                data.saveBills(data.getDefaultFileName()); // Write updated list to file.
+                totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill month total.
                 return true;
 
             } else { // Invalid object - null returned
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Invalid Name or Due date for Bill");
-                alert.setHeaderText(null);
-                alert.setContentText("Please try adding Bill details again");
-                alert.showAndWait();
+                InfoAlert.displayInfoAlert("Invalid Name or Due date for Bill", "Please try adding Bill details again");
             }
         }
         return false;
@@ -223,15 +230,10 @@ public class mainController {
     @FXML
     public void showEditBillDialog() {
 
-        // Will retreive the highlighed row/Bill object from the tableview.
+        // Retreive selected bill from TableView.
         Bill selectedBill = billsTable.getSelectionModel().getSelectedItem();
-        if (selectedBill == null) { // No bill object chosen, display error message
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("No Bill Selected");
-            alert.setHeaderText(null);
-            alert.setContentText("Please select the Bill you want to edit");
-            alert.showAndWait();
-            return;
+        if (selectedBill == null) { // No bill object chosen, display error message.
+            InfoAlert.displayInfoAlert("No Bill Selected", "Please select the Bill you want to edit");
         }
 
         // Valid bill selected.
@@ -253,8 +255,6 @@ public class mainController {
         dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
 
-
-        //
         BillController billController = fxmlLoader.getController();
         // Populate the dialog box with the bill data of chosen object so it can be edited.
         billController.editBill(selectedBill);
@@ -263,16 +263,12 @@ public class mainController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             if(billController.updateBill(selectedBill)) { // Validated updated bill
                 {
-                    data.saveBills();
+                    data.saveBills(data.getDefaultFileName());
                     showPersonDetails(selectedBill);
                     totalLabel.setText(String.format("%.2f", data.calculateTotal()));
                 }
             } else { // Invalid updated bill
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Invalid Name or Due Date for edited Bill");
-                alert.setHeaderText(null);
-                alert.setContentText("Please try re-editing Bill details again");
-                alert.showAndWait();
+                InfoAlert.displayInfoAlert("Invalid Name or Due Date for edited Bill", "Please try re-editing Bill details again");
             }
         }
     }
@@ -283,26 +279,15 @@ public class mainController {
     @FXML
     public void deleteBill() {
         Bill selectedBill = billsTable.getSelectionModel().getSelectedItem();
-        if(selectedBill == null) { // No contacted selected
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("No Bill Selected");
-            alert.setHeaderText(null);
-            alert.setContentText("Please select the Bill you want to delete.");
-            alert.showAndWait();
-            return;
+        if(selectedBill == null) { // No Bill selected.
+            InfoAlert.displayInfoAlert("No Bill Selected", "Please select the Bill you want to delete");
         }
 
-        // Suitable record to delete.
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); // Confirmation alert.
-        alert.setTitle("Delete Bill");
-        alert.setHeaderText(null);
-        alert.setContentText("Are you sure yo want to delete selected bill: " +
-                selectedBill.getName()); // Final check if bill object to be deleted.
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if(result.isPresent() && result.get() == ButtonType.OK) { // Delete
+        // Confirm that Bill should be removed.
+        if(InfoAlert.displayConfirmAlert("Delete Bill",
+                "Are you sure you want to delete selected bill> " + selectedBill.getName() + "?")) {
             data.deleteBill(selectedBill); // Delete bill object from list.
-            data.saveBills(); // Write updated list to file
+            data.saveBills(data.getDefaultFileName()); // Write updated list to file
             totalLabel.setText(String.format("%.2f", data.calculateTotal()));
         }
     }
@@ -312,13 +297,9 @@ public class mainController {
      */
     @FXML
     public void aboutHandler() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION); // Information alert.
-        alert.setTitle("About This Application");
-        alert.setHeaderText(null);
-        alert.setContentText("Written by Wayne Sandford\n2019");
-        Optional<ButtonType> result = alert.showAndWait();
+        InfoAlert.displayInfoAlert("About This Application", "Written by Wayne Sandford\n2019");
         data.displayMap(); // Temporary for debugging.
-        System.out.println(data.getMonthsSet().toString());
+        System.out.println(data.getMonthsSet().toString()); // Temporary for debugging.
     }
 
     /**
@@ -353,11 +334,8 @@ public class mainController {
             updateChangeAnotherMonthComboBox();
             updateDeleteAnotherMonthComboBox();
         } else {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle(" Invalid first Bill entry.");
-            alert.setHeaderText(null);
-            alert.setContentText("The month " + month + " could not be added. Please try adding new month again.");
-            alert.showAndWait();
+            InfoAlert.displayInfoAlert("Invalid first Bill entry.",
+                    "The month " + month + " could not be added. Please try adding new month again.");
             data.getBillsMap().remove(month);
             data.setCurrentMonth(tempMonth);
         }
@@ -391,34 +369,26 @@ public class mainController {
 
         if (data.getCurrentMonth() != null) {
             // Suitable record to delete.
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION); // Confirmation alert.
-            alert.setTitle("Delete Current Month");
-            alert.setHeaderText(null);
-            alert.setContentText("Are you sure yo want to delete the current month " + data.getCurrentMonth() +
-                    " and all associated bills with this month?"); // Final check if month to be deleted.
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) { // Delete
+            if(InfoAlert.displayConfirmAlert("Delete Current Month",
+                    "Are you sure yo want to delete the current month " + data.getCurrentMonth() +
+                    " and all associated bills with this month?" )) {
                 data.getBillsMap().remove(data.getCurrentMonth()); // Remove map entry
                 data.getMonthsSet().remove(data.getCurrentMonth()); // Remove current month from monthsSet.
                 showPersonDetails(null); // Clear person details.
                 billsTable.setItems(null); // Clear TableView
                 monthLabel.setText(null); // Clear month label.
-                data.saveBills(); // Write updated list to file
+                data.saveBills(data.getDefaultFileName()); // Write updated list to file
                 totalLabel.setText("0.00"); // Set up current bills total.
                 // Update ComboBoxes.
                 monthChoice.getItems().remove(data.getCurrentMonth());
                 deleteMonthChoice.getItems().remove(data.getCurrentMonth());
                 updateAddComboBox();
+                updateDeleteAnotherMonthComboBox();
                 data.setCurrentMonth(null);
             }
         } else {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("There is no current month");
-            alert.setHeaderText(null);
-            alert.setContentText("Choose <Delete Another Month> option to remove another Month");
-            alert.showAndWait();
-            return;
+            InfoAlert.displayInfoAlert("There is no current month.",
+                    "Choose <Delete Another Month> option to remove another Month.");
         }
     }
 
@@ -431,22 +401,20 @@ public class mainController {
         String month = deleteMonthChoice.getValue(); // Retrieve chosen month.
 
         // Confirm that month to be deleted.
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); // Confirmation alert.
-        alert.setTitle("Delete Another Month");
-        alert.setHeaderText(null);
-        alert.setContentText("Are you sure yo want to delete the month " + month +
-                " and all associated bills with this month?"); // Final check if month to be deleted.
-        Optional<ButtonType> answer = alert.showAndWait();
-        if (answer.isPresent() && answer.get() == ButtonType.OK) { // Delete OK confirmed.
+        if(InfoAlert.displayConfirmAlert("Delete Another Month",
+                "Are you sure yo want to delete the month " + month +
+               " and all associated bills with this month?")) {
             System.out.println("Alert Delete confirmed");
             data.getBillsMap().remove(month); // Remove map entry.
             data.getMonthsSet().remove(month); // Remove selected month from monthsSet.
+            data.saveBills(data.getDefaultFileName()); // Write updated list to file
             billsTable.setItems(null); // Clear TableView
             showPersonDetails(null);  // Clear persons details.
             totalLabel.setText("0.00"); // Set up current bills total.
             monthLabel.setText(null); // Update month label.
             monthChoice.getItems().remove((month)); // Update change month ComboBox on menu;
             updateAddComboBox();
+            updateDeleteAnotherMonthComboBox();
         }
     }
 
@@ -480,9 +448,7 @@ public class mainController {
             if(!data.getMonthsSet().contains(eachMonth)) {
                 addMonthOptions.add(eachMonth);
             }
-
             options.addAll(this.sortedMonths(data.getMonthsSet()));
-
         }
         addMonthChoice.getItems().addAll(addMonthOptions); // Add month to ComboBox.
         if(!addMonthOptions.isEmpty()) {
@@ -530,24 +496,30 @@ public class mainController {
 
         if (selectedFile != null) {
             System.out.println("File selected: " + selectedFile.getName()); // *** delete when tested ***
+            data.setDefaultFileName(selectedFile.getAbsolutePath());
+            System.out.println("Default filename is now " + data.getDefaultFileName());
             // Load data from selected file and display
+            String temp = selectedFile.getAbsolutePath();
+            System.out.println("OpenFileChooser absolute path filename is " + temp );
             data.loadBills(selectedFile.getAbsolutePath());
             data.setBills(data.getBillsMap().get(data.getCurrentMonth())); // Load List with default month to show
             billsTable.setItems(data.getBills()); // Set up TableView to list bills of default month.
-            totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
+            if(!data.getBillsMap().isEmpty()) {
+                totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
+            }
+            //totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
             monthLabel.setText(data.getCurrentMonth()); // Update month label.
             updateAddComboBox();
             updateChangeAnotherMonthComboBox();
             updateDeleteAnotherMonthComboBox();
+            // Prompt to make new open file as default file.
+            if(isNewDefault(selectedFile)) {
+                data.setDefaultFileName(selectedFile.getAbsolutePath()); // Set default filename.
+                TextFileOperation.writeDefaultFile("C:\\Users\\wsand\\IdeaProjects\\BillsApp\\default.txt", data.getDefaultFileName());
+            }
         }
         else {
-            System.out.println("File selection cancelled.");
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("File selection Cancelled");
-            alert.setHeaderText(null);
-            alert.setContentText("No File Opened");
-            alert.showAndWait();
-
+            InfoAlert.displayInfoAlert("File selection Cancelled.", "No File Opened.");
         }
     }
 
@@ -557,7 +529,7 @@ public class mainController {
     @FXML
     public void newFileChooser() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choose location To Save File");
+        fileChooser.setTitle("Choose location and filename for New File");
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("XML files", "*.XML")
         );
@@ -567,18 +539,11 @@ public class mainController {
         }
 
         File file = new File(selectedFile.getAbsolutePath());
-
-        System.out.println("New File name  is " + selectedFile.getAbsolutePath()); // *** remove after testing ***
-        PrintWriter outFile = null;
-        try {
-            outFile = new PrintWriter(file);
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        // Prompt to make new open file as default file.
+        if(isNewDefault(selectedFile)) {
+            data.setDefaultFileName(selectedFile.getAbsolutePath()); // Set default filename.
+            TextFileOperation.writeDefaultFile("C:\\Users\\wsand\\IdeaProjects\\BillsApp\\default.txt", data.getDefaultFileName());
         }
-
-        outFile.close();
-
         // Clear all bills data - if any.
         data.getBillsMap().clear();
         data.getMonthsSet().clear();
@@ -587,8 +552,87 @@ public class mainController {
         showPersonDetails(null);  // Clear persons details.
         totalLabel.setText("0.00"); // Set up current bills total.
         monthLabel.setText(null); // Update month label.
+        data.saveBills(data.getDefaultFileName()); // Write updated list to file
         updateAddComboBox();
         updateChangeAnotherMonthComboBox();
         updateDeleteAnotherMonthComboBox();
+    }
+
+    /**
+     * Event handler that displays the current filename as the default for when starting program.
+     */
+    @FXML
+    public void currentDefaultFile() {
+        InfoAlert.displayInfoAlert("Default File Path and Name.", "The default file is " + data.getDefaultFileName());
+    }
+
+    /**
+     * Event handler that changes the default filename.
+     */
+    @FXML
+    public void changeDefaultFile() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose File to be the default on startup");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("XML files", "*.XML")
+        );
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            // Prompt to file as default file.
+            if(isNewDefault(selectedFile)) {
+                data.setDefaultFileName(selectedFile.getAbsolutePath()); // Set default filename.
+                TextFileOperation.writeDefaultFile("C:\\Users\\wsand\\IdeaProjects\\BillsApp\\default.txt", data.getDefaultFileName());
+            }
+        }
+        else {
+            InfoAlert.displayInfoAlert("Default File not changed.");
+
+        }
+    }
+
+    /**
+     * Helper method to determine if file is to be made the default.
+     * @param file a file object.
+     * @return true if file to be made default otherwise false.
+     */
+    private boolean isNewDefault(File file) {
+        // Prompt to make new open file as default file.
+        return InfoAlert.displayConfirmAlert("Make as Default file",
+                "Do you want this file " + file.getName() + " as the default file on start up?");
+    }
+
+    /**
+     * Event handler that saves the current file.
+     */
+    public void saveFile() {
+        data.saveBills(data.getDefaultFileName());
+        InfoAlert.displayInfoAlert("Save File", data.getDefaultFileName() + " has been saved.");
+    }
+
+    public void saveAsFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save File as...");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("XML files", "*.XML")
+        );
+        File selectedFile = null;
+        while(selectedFile== null){
+            selectedFile = fileChooser.showSaveDialog(null);
+        }
+
+        File savedAsfile = new File(selectedFile.getAbsolutePath());
+
+        if (savedAsfile != null) {
+
+            data.saveBills(savedAsfile.getAbsolutePath());
+            // Prompt to file as default file.
+            if(isNewDefault(savedAsfile)) {
+                data.setDefaultFileName(savedAsfile.getAbsolutePath()); // Set default filename.
+                TextFileOperation.writeDefaultFile("C:\\Users\\wsand\\IdeaProjects\\BillsApp\\default.txt", data.getDefaultFileName());
+            }
+        }
+        else {
+            InfoAlert.displayInfoAlert("Default File not changed.");
+        }
     }
 }
