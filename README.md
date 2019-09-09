@@ -30,3 +30,8 @@ Git Commit - 09-09-2019
 - New Year Menu Option allows for new year to be specified.
 - Removed change year option from Date menu as this is address in the Year File menu.
 - Current Year/Default Year bug fix.
+
+Git Commit - 09-09-2019 2nd
+- Updated UI created and existing components linked.
+- Number Of UI nodes to be implemented in future versions
+- MainWindow CSS updated.

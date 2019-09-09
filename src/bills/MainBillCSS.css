@@ -31,12 +31,16 @@
     -fx-opacity: 1.5;
    }
 
-#gpane {
+#apanemain, #gpane {
     -fx-background-color: #1d1d1d;
 }
 
-#apane {
-    -fx-background-color: #1d1d1d;
+#apaneleft {
+    -fx-background-color: #2f4f4f;
+}
+
+#apanemiddle, #apaneright{
+    -fx-background-color: #696969;
 }
 
 .label {
@@ -82,13 +86,15 @@
         -fx-opacity: 0.9;
 }
 
-#totalLabel {
+#totalLabel, #monthLabel, #bLabel, #yearLabel, #tLabel, #bsLabel, #numberBillsLabel, #mExtrasLabel, #wBankLabel, #nBankLabel {
     -fx-font-size: 11pt;
     -fx-font-family: "Segoe UI Light";
     -fx-text-fill: white;
     -fx-opacity: 0.9;
     -fx-alignment: CENTER_RIGHT;
 }
+
+
 
 #bottomAnchor {
     -fx-background-color: derive(#1d1d1d,25%);
