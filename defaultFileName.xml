@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bills>
 <bill>
+	<name>dec</name>
+	<date_due>05/09/2019</date_due>
+	<amount>33.0</amount>
+	<bank_account>Nicki</bank_account>
+	<date_started>01/09/2019</date_started>
+	<date_changed>01/09/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes>merry xmas</notes>
+	<month>December</month>
+</bill>
+<bill>
+	<name>dec2</name>
+	<date_due>29/08/2019</date_due>
+	<amount>0.0</amount>
+	<bank_account>Wayne</bank_account>
+	<date_started>08/09/2019</date_started>
+	<date_changed>08/09/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes> </notes>
+	<month>December</month>
+</bill>
+<bill>
 	<name>mortgage</name>
 	<date_due>29/08/2019</date_due>
 	<amount>376.87</amount>
@@ -10,7 +32,6 @@
 	<previous_amount>0.0</previous_amount>
 	<notes> </notes>
 	<month>October</month>
-	<year>1999</year>
 </bill>
 <bill>
 	<name>Nicki Gigggaff</name>
@@ -22,7 +43,6 @@
 	<previous_amount>0.0</previous_amount>
 	<notes> </notes>
 	<month>October</month>
-	<year>1999</year>
 </bill>
 <bill>
 	<name>wayne giffgaff</name>
@@ -34,7 +54,6 @@
 	<previous_amount>0.0</previous_amount>
 	<notes> </notes>
 	<month>October</month>
-	<year>1999</year>
 </bill>
 <bill>
 	<name>Callie moden</name>
@@ -46,19 +65,28 @@
 	<previous_amount>0.0</previous_amount>
 	<notes> </notes>
 	<month>October</month>
-	<year>1999</year>
 </bill>
 <bill>
-	<name>oct5</name>
-	<date_due>28/08/2019</date_due>
-	<amount>44.0</amount>
-	<bank_account>Nicki</bank_account>
-	<date_started>08/09/2019</date_started>
-	<date_changed>08/09/2019</date_changed>
+	<name>Food</name>
+	<date_due>05/09/2019</date_due>
+	<amount>280.0</amount>
+	<bank_account>Wayne</bank_account>
+	<date_started>01/09/2019</date_started>
+	<date_changed>01/09/2019</date_changed>
 	<previous_amount>0.0</previous_amount>
 	<notes> </notes>
-	<month>October</month>
-	<year>1999</year>
+	<month>May</month>
+</bill>
+<bill>
+	<name>Fuel</name>
+	<date_due>18/09/2019</date_due>
+	<amount>120.0</amount>
+	<bank_account>Wayne</bank_account>
+	<date_started>01/09/2019</date_started>
+	<date_changed>01/09/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes> </notes>
+	<month>May</month>
 </bill>
 <bill>
 	<name>july</name>
@@ -70,7 +98,6 @@
 	<previous_amount>0.0</previous_amount>
 	<notes> </notes>
 	<month>July</month>
-	<year>1999</year>
 </bill>
 <bill>
 	<name>july2</name>
@@ -82,7 +109,6 @@
 	<previous_amount>5.0</previous_amount>
 	<notes> </notes>
 	<month>July</month>
-	<year>1999</year>
 </bill>
 <bill>
 	<name>july3</name>
@@ -94,7 +120,17 @@
 	<previous_amount>0.0</previous_amount>
 	<notes> </notes>
 	<month>July</month>
-	<year>1999</year>
+</bill>
+<bill>
+	<name>jan</name>
+	<date_due>01/08/2019</date_due>
+	<amount>0.0</amount>
+	<bank_account>Wayne</bank_account>
+	<date_started>31/08/2019</date_started>
+	<date_changed>31/08/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes> </notes>
+	<month>January</month>
 </bill>
 <bill>
 	<name>feb</name>
@@ -106,6 +142,16 @@
 	<previous_amount>0.0</previous_amount>
 	<notes> </notes>
 	<month>February</month>
-	<year>1999</year>
+</bill>
+<bill>
+	<name>april</name>
+	<date_due>04/09/2019</date_due>
+	<amount>33.23</amount>
+	<bank_account>Wayne</bank_account>
+	<date_started>01/09/2019</date_started>
+	<date_changed>01/09/2019</date_changed>
+	<previous_amount>0.0</previous_amount>
+	<notes> </notes>
+	<month>April</month>
 </bill>
 </bills>

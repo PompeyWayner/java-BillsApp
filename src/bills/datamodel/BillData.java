@@ -34,12 +34,15 @@ public class BillData {
     private static final String PREVIOUS_AMOUNT = "previous_amount";
     private static final String NOTES = "notes";
     private static final String MONTH = "month";
+    private static final String YEAR = "year";
 
     private ObservableList<Bill> bills; // Holds Bill objects
     private Map<String, ObservableList<Bill>> billsMap; // Holds each month of Bills.
     public static String currentMonth; // Holds current month of bills being displayed.
+    public static String currentYear; // Holds current year of bills being displayed.
     private Set<String> monthsSet; // Holds all months that have been added.
     private String defaultFileName;
+    private String currentYearFileName;
 
     // Constructor
     public BillData() {
@@ -47,6 +50,7 @@ public class BillData {
         this.billsMap = new HashMap<>();
         this.monthsSet = new HashSet<>();
         this.defaultFileName = BILLS_FILE;
+        this.currentYearFileName = BILLS_FILE;
     }
 
     public ObservableList<Bill> getBills() {
@@ -79,6 +83,22 @@ public class BillData {
 
     public void setDefaultFileName(String defaultFileName) {
         this.defaultFileName = defaultFileName;
+    }
+
+    public String getCurrentYear() {
+        return currentYear;
+    }
+
+    public void setCurrentYear(String currentYear) {
+        this.currentYear = currentYear;
+    }
+
+    public String getCurrentYearFileName() {
+        return currentYearFileName;
+    }
+
+    public void setCurrentYearFileName(String currentYearFileName) {
+        this.currentYearFileName = currentYearFileName;
     }
 
     /**
@@ -144,6 +164,8 @@ public class BillData {
      */
     public void loadBills(String selectedFile) {
         try {
+
+            boolean isYearRetrieved = false;
             billsMap.clear();
             //bills.clear();
             monthsSet.clear();
@@ -250,6 +272,19 @@ public class BillData {
                         }
                     }
 
+                    if (event.isStartElement()) {
+                        if (event.asStartElement().getName().getLocalPart()
+                                .equals(YEAR)) {
+                            event = eventReader.nextEvent();
+                            bill.setYear(event.asCharacters().getData());
+                            if(!isYearRetrieved) {
+                                BillData.currentYear = bill.getYear();
+                                isYearRetrieved = true;
+                            }
+                            continue;
+                        }
+                    }
+
                 }
                 // If we reach the end of a contact element, we add it to the list.
                 if (event.isEndElement()) {
@@ -347,6 +382,7 @@ public class BillData {
         createNode(eventWriter, PREVIOUS_AMOUNT, Double.toString(bill.getPreviousAmount()));
         createNode(eventWriter, NOTES, bill.getNotes());
         createNode(eventWriter, MONTH, bill.getMonth());
+        createNode(eventWriter, YEAR, bill.getYear());
 
         eventWriter.add(eventFactory.createEndElement("", "", BILL));
         eventWriter.add(end);

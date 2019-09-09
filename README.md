@@ -24,3 +24,9 @@ Git Commit - 08-09-2019
   is created and called defaultFileName.xml .
 - Fixed bugs for New and Open File.
 - Refactored code so that the Alert notifications call a separate class.
+
+Git Commit - 09-09-2019
+- Added the Year option, so that the year of the file is displayed and the year is added to all bill records.
+- New Year Menu Option allows for new year to be specified.
+- Removed change year option from Date menu as this is address in the Year File menu.
+- Current Year/Default Year bug fix.

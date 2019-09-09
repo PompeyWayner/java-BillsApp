@@ -11,10 +11,7 @@ public class TextFileOperation {
         try {
             FileInputStream fis = new FileInputStream(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-
             line=br.readLine();
-            System.out.println("Default filename is " + line);
-
             br.close();
         } catch (FileNotFoundException e) {
             // File not found
@@ -23,13 +20,11 @@ public class TextFileOperation {
             // Error when reading the file
             e.printStackTrace();
         }
-        System.out.println("Read in filename from defaulttextfile which is " + line);
         return line;
     }
 
     public static void writeDefaultFile(String defaultFile, String newDefaultName) {
         try {
-            System.out.println("writeDefaultFile()");
             File fout = new File(defaultFile);
             System.out.println(fout.getAbsolutePath());
             FileOutputStream fos = new FileOutputStream(fout);

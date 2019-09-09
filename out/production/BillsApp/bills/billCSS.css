@@ -152,9 +152,8 @@
     -fx-text-fill: white;
 }
 
-.button:default {
-    -fx-background-color: -fx-focus-color;
-    -fx-text-fill: #ffffff;
+.button:{
+    -fx-background-color: #00ff00;
 }
 
 .button:default:hover {
@@ -171,8 +170,6 @@
 
 .dialog-pane {
     -fx-background-color: #1d1d1d;
-
-
 }
 
 

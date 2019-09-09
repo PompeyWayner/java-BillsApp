@@ -83,7 +83,8 @@ public class BillController {
 
         // Create new Bill object from entered ino
         LocalDate todaysDate = LocalDate.now();
-        return new Bill(name, dueDate, amount, chosenAccount, notes, todaysDate, todaysDate, 0.00, BillData.currentMonth);
+        return new Bill(name, dueDate, amount, chosenAccount, notes, todaysDate, todaysDate, 0.00,
+                BillData.currentMonth, BillData.currentYear);
     }
 
     /**

@@ -21,13 +21,14 @@ public class Bill {
     private ObjectProperty<LocalDate> dateChanged = new SimpleObjectProperty<>();
     private SimpleDoubleProperty previousAmount = new SimpleDoubleProperty();
     private final SimpleStringProperty month = new SimpleStringProperty();
+    private final SimpleStringProperty year = new SimpleStringProperty();
 
     // Constructors.
     public Bill() {
     }
 
     public Bill(String name, LocalDate dateOfPayment, double amount, String account, String notes,
-                LocalDate dStarted, LocalDate dChanged, double pAmount, String aMonth) {
+                LocalDate dStarted, LocalDate dChanged, double pAmount, String aMonth, String aYear) {
         this.name.set(name);
         this.dateOfPayment.set(dateOfPayment);
         this.amount.set(amount);
@@ -37,6 +38,7 @@ public class Bill {
         this.dateChanged.set(dChanged);
         this.previousAmount.set(pAmount);
         this.month.set(aMonth);
+        this.year.set(aYear);
     }
 
     public String getName() {
@@ -147,10 +149,23 @@ public class Bill {
         this.month.set(month);
     }
 
+    public String getYear() {
+        return year.get();
+    }
+
+    public SimpleStringProperty yearProperty() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year.set(year);
+    }
+
     @Override
     public String toString() {
         return "Bill{" +
                 "month= " + month +
+                "year" +
                 "name=" + name +
                 ", dateOfPayment=" + dateOfPayment +
                 ", amount=" + amount +

@@ -11,9 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -34,40 +32,24 @@ public class mainController {
     @FXML
     private TableColumn<Bill, LocalDate> dateColumn;
     @FXML
-    private Label nameLabel;
+    private Label nameLabel, dateLabel, amountLabel, fromAccountLabel, startDateLabel, changedDateLabel;
     @FXML
-    private Label dateLabel;
+    private Label previousAmountLabel, notesLabel, totalLabel, monthLabel, yearLabel;
     @FXML
-    private Label amountLabel;
+    private ComboBox<String> monthChoice, addMonthChoice, deleteMonthChoice, newYearChoice;
     @FXML
-    private Label fromAccountLabel;
-    @FXML
-    private Label startDateLabel;
-    @FXML
-    private Label changedDateLabel;
-    @FXML
-    private Label previousAmountLabel;
-    @FXML
-    private Label notesLabel;
-    @FXML
-    private Label totalLabel;
-    @FXML
-    private Label monthLabel;
-    @FXML
-    private ComboBox<String> monthChoice;
-    @FXML
-    private ComboBox<String> addMonthChoice;
-    @FXML
-    private ComboBox<String> deleteMonthChoice;
+    private Menu billMenu;
 
     private BillData data; // class BillData variable.
-
     private final String[] monthsOfYear = {"January", "February", "March", "April",
             "May", "June", "July", "August", "September", "October", "November", "December"};
+    private final String[] years = {"2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018",
+                                    "2019", "2020", "2021", "2022", "2023", "2024", "2025"};
 
     private ObservableList<String> options = FXCollections.observableArrayList(); // Change month list for ComboBox.
     private ObservableList<String> addMonthOptions = FXCollections.observableArrayList(); // Add month list for ComboBox.
     private ObservableList<String> deleteMonthOptions = FXCollections.observableArrayList(); // Delete another month list for ComboBox.
+    private ObservableList<String> newYearOptions = FXCollections.observableArrayList(); // New Year File available Years.
 
     /**
      * Initialise variables, set up bill list.
@@ -78,20 +60,18 @@ public class mainController {
         data = new BillData(); // Create new BillData instance.
 
         // Load in default file.
-        data.setDefaultFileName(TextFileOperation.readDefaultFile());
-        if(data.getDefaultFileName() != null) { // File exists and something has been returned.
-            System.out.println("Default file found - file is " + data.getDefaultFileName());
+        data.setDefaultFileName(TextFileOperation.readDefaultFile()); // Retrieve default filename.
+        data.setCurrentYearFileName(data.getDefaultFileName());
+        if(data.getCurrentYearFileName() != null) { // File exists and something has been returned.
             data.loadBills(data.getDefaultFileName()); // Load default file with bills from file.
         } else { // No default file, create one.
-            // CREATE NEW DEFAULT FILE WITH DEFAULT FILENAME IN IT.
             File defaultTextFile = new File("C:\\Users\\wsand\\IdeaProjects\\BillsApp\\default.txt");
             TextFileOperation.writeDefaultFile(defaultTextFile.getName(), data.getDefaultFileName());
-            data.loadBills(data.getDefaultFileName()); // Load default file with bills from file.
+            //data.loadBills(data.getDefaultFileName()); // Load default file with bills from file.
+            data.saveBills(data.getDefaultFileName()); // Save empty file
         }
 
-
-        data.setBills(data.getBillsMap().get(data.getCurrentMonth())); // Load List with default month to show
-        System.out.println("mainController.initialise()");
+        data.setBills(data.getBillsMap().get(data.getCurrentMonth())); // Load List with default month to show.
         billsTable.setItems(data.getBills()); // Set up TableView to list bills of default month.
 
         // Formatting of date for table column
@@ -136,11 +116,18 @@ public class mainController {
             totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
         }
         monthLabel.setText(data.getCurrentMonth()); // Update month label.
+        yearLabel.setText(data.getCurrentYear()); // Update year label.
 
         // Set up ComboBox data.
         updateAddComboBox();
         updateChangeAnotherMonthComboBox();
         updateDeleteAnotherMonthComboBox();
+        updateNewYearCombo();
+
+
+        if(data.getBillsMap().isEmpty()) { // Disable Bill Menu if empty file.
+            billMenu.setDisable(true);
+        }
     }
 
     /**
@@ -208,13 +195,16 @@ public class mainController {
 
             // Test to see if newBill is valid - add new Bill object to current Month.
             if(newBill != null) {
-                for(String eachMonth : data.getBillsMap().keySet()) {
-                    if (newBill.getMonth().equals(eachMonth)) {
-                        data.getBillsMap().get(eachMonth).add(newBill);
-                    }
-                }
+//                for(String eachMonth : data.getBillsMap().keySet()) {
+////                    if (newBill.getMonth().equals(eachMonth)) {
+////                        data.getBillsMap().get(eachMonth).add(newBill);
+////                    }
+////                }
+                data.getBillsMap().get(data.getCurrentMonth()).add(newBill);
                 data.saveBills(data.getDefaultFileName()); // Write updated list to file.
-                totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill month total.
+                if(data.getBillsMap().size() > 1) {
+                    totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill month total.
+                }
                 return true;
 
             } else { // Invalid object - null returned
@@ -315,11 +305,12 @@ public class mainController {
      */
     @FXML
     public void addNewMonthDialog() {
-        System.out.println("mainController.addNewMonthDialog - just entered!!!");
+        billMenu.setDisable(false);
         String month = addMonthChoice.getValue(); // Retrieve chosen month.
         data.getBillsMap().put(month, FXCollections.observableArrayList()); // Add month to Map
         String tempMonth = data.getCurrentMonth(); // Store last month before updating to new current month;
         data.setCurrentMonth(month); // Set currentMonth to entered month
+        billMenu.setDisable(false);
 
         // New month added therefore a valid Bill object needs to be added.
         if(this.showAddBillDialog()) {
@@ -346,7 +337,7 @@ public class mainController {
      */
     @FXML
     public void changeMonthDialog() {
-        System.out.println("changeMonthDialog - just entered!!!");
+        billMenu.setDisable(false);
         String month = monthChoice.getValue(); // Retrieve chosen month.
 
         // Test to see if entered month is already exists
@@ -374,17 +365,28 @@ public class mainController {
                     " and all associated bills with this month?" )) {
                 data.getBillsMap().remove(data.getCurrentMonth()); // Remove map entry
                 data.getMonthsSet().remove(data.getCurrentMonth()); // Remove current month from monthsSet.
-                showPersonDetails(null); // Clear person details.
-                billsTable.setItems(null); // Clear TableView
-                monthLabel.setText(null); // Clear month label.
+//                showPersonDetails(null); // Clear person details.
+//                billsTable.setItems(null); // Clear TableView
+//                monthLabel.setText(null); // Clear month label.
+//                totalLabel.setText("0.00"); // Set up current bills total.
+                clearDataFromMainWindow();
                 data.saveBills(data.getDefaultFileName()); // Write updated list to file
-                totalLabel.setText("0.00"); // Set up current bills total.
                 // Update ComboBoxes.
                 monthChoice.getItems().remove(data.getCurrentMonth());
                 deleteMonthChoice.getItems().remove(data.getCurrentMonth());
+                data.getBills().clear(); // Remove all Bill entries from list.
                 updateAddComboBox();
                 updateDeleteAnotherMonthComboBox();
                 data.setCurrentMonth(null);
+                if(data.getBillsMap().isEmpty()) {
+                    billMenu.setDisable(true);
+                }
+                for(Bill bill : data.getBills()) {
+                    System.out.println("Current bills in list" + bill.toString());
+                }
+                if(data.getBills().isEmpty()) {
+                    billMenu.setDisable(true);
+                }
             }
         } else {
             InfoAlert.displayInfoAlert("There is no current month.",
@@ -408,13 +410,12 @@ public class mainController {
             data.getBillsMap().remove(month); // Remove map entry.
             data.getMonthsSet().remove(month); // Remove selected month from monthsSet.
             data.saveBills(data.getDefaultFileName()); // Write updated list to file
-            billsTable.setItems(null); // Clear TableView
-            showPersonDetails(null);  // Clear persons details.
-            totalLabel.setText("0.00"); // Set up current bills total.
-            monthLabel.setText(null); // Update month label.
             monthChoice.getItems().remove((month)); // Update change month ComboBox on menu;
             updateAddComboBox();
             updateDeleteAnotherMonthComboBox();
+            if(data.getBillsMap().isEmpty()) {
+                billMenu.setDisable(true);
+            }
         }
     }
 
@@ -493,14 +494,9 @@ public class mainController {
                 new FileChooser.ExtensionFilter("XML files", "*.XML")
         );
         File selectedFile = fileChooser.showOpenDialog(null);
-
+        billMenu.setDisable(false);
         if (selectedFile != null) {
-            System.out.println("File selected: " + selectedFile.getName()); // *** delete when tested ***
-            data.setDefaultFileName(selectedFile.getAbsolutePath());
-            System.out.println("Default filename is now " + data.getDefaultFileName());
             // Load data from selected file and display
-            String temp = selectedFile.getAbsolutePath();
-            System.out.println("OpenFileChooser absolute path filename is " + temp );
             data.loadBills(selectedFile.getAbsolutePath());
             data.setBills(data.getBillsMap().get(data.getCurrentMonth())); // Load List with default month to show
             billsTable.setItems(data.getBills()); // Set up TableView to list bills of default month.
@@ -509,6 +505,8 @@ public class mainController {
             }
             //totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
             monthLabel.setText(data.getCurrentMonth()); // Update month label.
+            yearLabel.setText(data.getCurrentYear()); // Update year label.
+            data.setCurrentYearFileName(selectedFile.getAbsolutePath());
             updateAddComboBox();
             updateChangeAnotherMonthComboBox();
             updateDeleteAnotherMonthComboBox();
@@ -537,8 +535,8 @@ public class mainController {
         while(selectedFile== null){
             selectedFile = fileChooser.showSaveDialog(null);
         }
-
-        File file = new File(selectedFile.getAbsolutePath());
+        data.setCurrentYearFileName(selectedFile.getAbsolutePath());
+        //File file = new File(selectedFile.getAbsolutePath());
         // Prompt to make new open file as default file.
         if(isNewDefault(selectedFile)) {
             data.setDefaultFileName(selectedFile.getAbsolutePath()); // Set default filename.
@@ -547,15 +545,16 @@ public class mainController {
         // Clear all bills data - if any.
         data.getBillsMap().clear();
         data.getMonthsSet().clear();
-        billsTable.setItems(null); // Clear TableView
-
-        showPersonDetails(null);  // Clear persons details.
-        totalLabel.setText("0.00"); // Set up current bills total.
-        monthLabel.setText(null); // Update month label.
-        data.saveBills(data.getDefaultFileName()); // Write updated list to file
+        clearDataFromMainWindow();
+        yearLabel.setText(data.getCurrentYear()); //
+        data.saveBills(data.getCurrentYearFileName()); // Write updated list to file
         updateAddComboBox();
         updateChangeAnotherMonthComboBox();
         updateDeleteAnotherMonthComboBox();
+        if(data.getBillsMap().isEmpty()) {
+            billMenu.setDisable(true);
+            InfoAlert.displayInfoAlert("File Empty", "There are no months. Please add a month.");
+        }
     }
 
     /**
@@ -634,5 +633,32 @@ public class mainController {
         else {
             InfoAlert.displayInfoAlert("Default File not changed.");
         }
+    }
+
+    private void clearDataFromMainWindow() {
+        showPersonDetails(null); // Clear person details.
+        billsTable.setItems(null); // Clear TableView
+        monthLabel.setText(null); // Clear month label.
+        totalLabel.setText("0.00"); // Set up current bills total.
+        yearLabel.setText(null); // Clear year label.
+    }
+
+    public void currentYearFile() {
+        InfoAlert.displayInfoAlert("Current Year File Open", data.getCurrentYearFileName());
+    }
+
+    public void updateNewYearCombo() {
+        newYearChoice.getItems().clear();
+        newYearOptions.clear();
+        newYearOptions.addAll(this.years);
+        newYearChoice.getItems().addAll(newYearOptions);
+
+    }
+
+    @FXML
+    public void chooseNewYear () {
+        String yearChosen = newYearChoice.getValue(); // Retrieve chosen month.
+        data.setCurrentYear(yearChosen);
+        newFileChooser();
     }
 }
