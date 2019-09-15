@@ -35,6 +35,7 @@ public class BillData {
     private static final String NOTES = "notes";
     private static final String MONTH = "month";
     private static final String YEAR = "year";
+    private static final String SELECTED = "selected";
 
     private ObservableList<Bill> bills; // Holds Bill objects
     private Map<String, ObservableList<Bill>> billsMap; // Holds each month of Bills.
@@ -103,6 +104,7 @@ public class BillData {
 
     /**
      * Add a new Bill.
+     *
      * @param bill a Bill object to add to List of Bills.
      */
     public void addBill(Bill bill) {
@@ -111,6 +113,7 @@ public class BillData {
 
     /**
      * Add a new month to the map and set up a empty Bill list.
+     *
      * @param aMonth a String representing month as key value to be added to the map.
      */
     public void addNewMonth(String aMonth) {
@@ -120,6 +123,7 @@ public class BillData {
 
     /**
      * Remove a bill.
+     *
      * @param bill a Bill object to remove from List of Bills.
      */
     public void deleteBill(Bill bill) {
@@ -129,16 +133,17 @@ public class BillData {
     /**
      * Helper method.
      * Add current Bill object to the correct month.
+     *
      * @param aBill a Bill object to be placed in correct month.
      */
     private void addToCorrectMonth(Bill aBill) {
         // Test for empty Map - and add first key entry if necessary.
-        if(billsMap.isEmpty()) {
+        if (billsMap.isEmpty()) {
             billsMap.put(aBill.getMonth(), FXCollections.observableArrayList());
             billsMap.get(aBill.getMonth()).add(aBill);
             this.setCurrentMonth(aBill.getMonth());
         } else { // Bill object month already in map
-            if(billsMap.containsKey(aBill.getMonth())) {
+            if (billsMap.containsKey(aBill.getMonth())) {
                 billsMap.get(aBill.getMonth()).add(aBill);
             } else { // Month does not exist in currently populated map.
                 billsMap.put(aBill.getMonth(), FXCollections.observableArrayList());
@@ -151,9 +156,9 @@ public class BillData {
      * Test method that display contents of map.
      */
     public void displayMap() {
-        for(String eachMonth : billsMap.keySet()) {
+        for (String eachMonth : billsMap.keySet()) {
             System.out.println("Month : " + eachMonth);
-            for(Bill eachBill : this.billsMap.get(eachMonth)) {
+            for (Bill eachBill : this.billsMap.get(eachMonth)) {
                 System.out.println(eachBill.toString());
             }
         }
@@ -277,10 +282,19 @@ public class BillData {
                                 .equals(YEAR)) {
                             event = eventReader.nextEvent();
                             bill.setYear(event.asCharacters().getData());
-                            if(!isYearRetrieved) {
+                            if (!isYearRetrieved) {
                                 BillData.currentYear = bill.getYear();
                                 isYearRetrieved = true;
                             }
+                            continue;
+                        }
+                    }
+
+                    if (event.isStartElement()) {
+                        if (event.asStartElement().getName().getLocalPart()
+                                .equals(SELECTED)) {
+                            event = eventReader.nextEvent();
+                            bill.setSelected((Boolean.valueOf(event.asCharacters().getData())));
                             continue;
                         }
                     }
@@ -294,11 +308,9 @@ public class BillData {
                     }
                 }
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             //e.printStackTrace();
-        }
-        catch (XMLStreamException e) {
+        } catch (XMLStreamException e) {
             e.printStackTrace();
         }
     }
@@ -328,9 +340,9 @@ public class BillData {
             eventWriter.add(end);
 
             // Save each Bill object from each Month.
-            for(String eachMonth : billsMap.keySet()) {
+            for (String eachMonth : billsMap.keySet()) {
                 System.out.println(eachMonth);
-                for(Bill bill : billsMap.get(eachMonth)) {
+                for (Bill bill : billsMap.get(eachMonth)) {
                     saveBill(eventWriter, eventFactory, bill);
                 }
             }
@@ -339,12 +351,10 @@ public class BillData {
             eventWriter.add(end);
             eventWriter.add(eventFactory.createEndDocument());
             eventWriter.close();
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             System.out.println("Problem with Bills file: " + e.getMessage());
             e.printStackTrace();
-        }
-        catch (XMLStreamException e) {
+        } catch (XMLStreamException e) {
             System.out.println("Problem writing bill: " + e.getMessage());
             e.printStackTrace();
         }
@@ -352,11 +362,12 @@ public class BillData {
 
     /**
      * Write one bill to XML file
-     * @param eventWriter a
+     *
+     * @param eventWriter  a
      * @param eventFactory a
-     * @param bill a Bill object that will be written to file.
+     * @param bill         a Bill object that will be written to file.
      * @throws FileNotFoundException file not found.
-     * @throws XMLStreamException unexpected process.
+     * @throws XMLStreamException    unexpected process.
      */
     private void saveBill(XMLEventWriter eventWriter, XMLEventFactory eventFactory, Bill bill)
             throws FileNotFoundException, XMLStreamException {
@@ -383,6 +394,7 @@ public class BillData {
         createNode(eventWriter, NOTES, bill.getNotes());
         createNode(eventWriter, MONTH, bill.getMonth());
         createNode(eventWriter, YEAR, bill.getYear());
+        createNode(eventWriter, SELECTED, Boolean.toString(bill.isSelected()));
 
         eventWriter.add(eventFactory.createEndElement("", "", BILL));
         eventWriter.add(end);
@@ -408,13 +420,26 @@ public class BillData {
     }
 
     /**
-     * Calculate total of all the bills.
+     * Calculate total of all the bills. The total depends on the bills
+     * that are currently selected.
      */
-    public double calculateTotal () {
+    public double calculateTotal() {
         double total = 0.0;
 
-        for(Bill aBill : this.bills){
-            total += aBill.getAmount();
+        for (Bill aBill : this.bills) {
+            if (aBill.isSelected()) {
+                total += aBill.getAmount();
+            }
+        }
+        return total;
+    }
+
+    public int totalBillsSelected() {
+        int total = 0;
+        for (Bill aBill : this.bills) {
+            if (aBill.isSelected()) {
+                total+= 1;
+            }
         }
         return total;
     }

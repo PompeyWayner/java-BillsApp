@@ -77,6 +77,8 @@ public class BillController {
             chosenAccount = "Wayne";
         } else if ("Nicki's Account".equals(bankAccount.getValue())) {
             chosenAccount = "Nicki";
+        } else if ("Extras".equals(bankAccount.getValue())) {
+            chosenAccount = "Extra";
         } else {
             chosenAccount = "None";
         }

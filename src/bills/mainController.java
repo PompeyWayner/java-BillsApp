@@ -2,18 +2,33 @@ package bills;
 
 import bills.datamodel.Bill;
 import bills.datamodel.BillData;
+import bills.TableColumnFormatting;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.WeakInvalidationListener;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.util.Callback;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
+import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.collections.ListChangeListener.Change;
 
 /**
  * Controller for MainWindow.fxml
@@ -26,15 +41,17 @@ public class mainController {
     @FXML
     private AnchorPane mainPanel;
     @FXML
-    private TableView<Bill> billsTable;
+    private TableView<Bill> billsTable, wayneBillTable, nickiBillTable, extraBillTable;
     @FXML
-    private TableColumn<Bill, Double> amountColumn;
+    private TableColumn<Bill, Double> amountColumn, wayneAmountColumn, nickiAmountColumn, extraAmountColumn;
     @FXML
-    private TableColumn<Bill, LocalDate> dateColumn;
+    private TableColumn<Bill, LocalDate> dateColumn, wayneDateColumn, nickiDateColumn, extraDateColumn;
+    @FXML
+    private TableColumn<Bill, Boolean> checkBoxSelectionColumn;
     @FXML
     private Label nameLabel, dateLabel, amountLabel, fromAccountLabel, startDateLabel, changedDateLabel;
     @FXML
-    private Label previousAmountLabel, notesLabel, totalLabel, monthLabel, yearLabel;
+    private Label previousAmountLabel, notesLabel, totalLabel, monthLabel, yearLabel, numberBillsLabel;
     @FXML
     private ComboBox<String> monthChoice, addMonthChoice, deleteMonthChoice, newYearChoice;
     @FXML
@@ -50,6 +67,8 @@ public class mainController {
     private ObservableList<String> addMonthOptions = FXCollections.observableArrayList(); // Add month list for ComboBox.
     private ObservableList<String> deleteMonthOptions = FXCollections.observableArrayList(); // Delete another month list for ComboBox.
     private ObservableList<String> newYearOptions = FXCollections.observableArrayList(); // New Year File available Years.
+
+    final PseudoClass ghosted = PseudoClass.getPseudoClass("ghosted");
 
     /**
      * Initialise variables, set up bill list.
@@ -67,27 +86,11 @@ public class mainController {
         } else { // No default file, create one.
             File defaultTextFile = new File("C:\\Users\\wsand\\IdeaProjects\\BillsApp\\default.txt");
             TextFileOperation.writeDefaultFile(defaultTextFile.getName(), data.getDefaultFileName());
-            //data.loadBills(data.getDefaultFileName()); // Load default file with bills from file.
             data.saveBills(data.getDefaultFileName()); // Save empty file
         }
 
         data.setBills(data.getBillsMap().get(data.getCurrentMonth())); // Load List with default month to show.
         billsTable.setItems(data.getBills()); // Set up TableView to list bills of default month.
-
-        // Formatting of date for table column
-        dateColumn.setCellFactory(tc -> new TableCell<>() {
-
-            @Override
-            protected void updateItem(LocalDate aDate, boolean empty) {
-                super.updateItem(aDate, empty);
-                if (empty) {
-                    setText(null);
-                } else {
-
-                    setText(String.format(DateUtil.format(aDate)));
-                }
-            }
-        });
 
         // Listen for selection changes and show the person details when changed.
         // With billsTable.getSelectionModel... we get the selectedItemProperty
@@ -95,28 +98,72 @@ public class mainController {
         // Whenever the user selects a bill in the table, our lambda expression is executed.
         // We take the newly selected person and pass it to the showPersonDetails(...) method.
         billsTable.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> showPersonDetails(newValue));
+                (observable, oldValue, newValue) -> {
+                    showPersonDetails(newValue);
+                    wayneBillTable.setItems(loadBillTable(data.getBills(), "Wayne")); // Set up Wayne's Bank Bills TableView.
+                    nickiBillTable.setItems(loadBillTable(data.getBills(), "Nicki")); // Set up Nicki's Bank Bills TableView.
+                    extraBillTable.setItems(loadBillTable(data.getBills(), "Extra")); // Set up Extra Bills TableView.
+                });
         billsTable.getSelectionModel().selectFirst();
+        billsTable.setEditable(true);
 
-        // Formatting for decimal amount value in table column.
-        amountColumn.setCellFactory(tc -> new TableCell<Bill, Double>() {
+        // Formatting of Date for all TableColumns.
+        TableColumnFormatting.formatDate(dateColumn);
+        TableColumnFormatting.formatDate(wayneDateColumn);
+        TableColumnFormatting.formatDate(nickiDateColumn);
+        TableColumnFormatting.formatDate(extraDateColumn);
+
+        // Formatting of Amount for all TableColumns.
+        TableColumnFormatting.formatAmount(amountColumn);
+        TableColumnFormatting.formatAmount(wayneAmountColumn);
+        TableColumnFormatting.formatAmount(nickiAmountColumn);
+        TableColumnFormatting.formatAmount(extraAmountColumn);
+
+        // Create CheckBox in TableView.
+        checkBoxSelectionColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkBoxSelectionColumn));
+
+        // Listen for CheckBox click and apply changes to Row as required. Update bill total and bills
+        // selected.
+        billsTable.setRowFactory(row -> new TableRow<Bill>(){
+
+            private final InvalidationListener l = o -> {
+                pseudoClassStateChanged(ghosted, getItem().isSelected() == false);
+            };
+            private final WeakInvalidationListener listener = new WeakInvalidationListener(l);
 
             @Override
-            protected void updateItem(Double anAmount, boolean empty) {
-                super.updateItem(anAmount, empty);
-                if (empty) {
-                    setText(null);
-                } else {
-                    //setText(decimalFormat.format(anAmount));
-                    setText(String.format("%.2f", anAmount.doubleValue()));
+            public void updateItem(Bill bill, boolean empty){
+                // remove listener from last item
+                Bill oldItem = getItem();
+                if (oldItem != null) {
+                    oldItem.selectedProperty().removeListener(listener);
                 }
+
+                super.updateItem(bill, empty);
+
+                if (bill == null || empty) {
+                    pseudoClassStateChanged(ghosted, false);
+                } else {
+                    // add listener & update
+                    bill.selectedProperty().addListener(listener);
+                    l.invalidated(null);
+                    if(bill.isSelected()) { // Update total of bills.
+                        totalLabel.setText(String.format("%.2f", data.calculateTotal()));
+                    } else {
+                        totalLabel.setText(String.format("%.2f", data.calculateTotal()));
+                    }
+                }
+                numberBillsLabel.setText(Integer.toString(data.totalBillsSelected())); // Update number of bills selected menu.
             }
         });
-        if(!data.getBillsMap().isEmpty()) {
-            totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
-        }
+
+
+//        if(!data.getBillsMap().isEmpty()) {
+//            totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill total.
+//        }
         monthLabel.setText(data.getCurrentMonth()); // Update month label.
         yearLabel.setText(data.getCurrentYear()); // Update year label.
+        //numberBillsLabel.setText(Integer.toString(data.totalBillsSelected())); // Update number of bills selected menu.
 
         // Set up ComboBox data.
         updateAddComboBox();
@@ -202,6 +249,7 @@ public class mainController {
 ////                }
                 data.getBillsMap().get(data.getCurrentMonth()).add(newBill);
                 data.saveBills(data.getDefaultFileName()); // Write updated list to file.
+
                 if(data.getBillsMap().size() > 1) {
                     totalLabel.setText(String.format("%.2f", data.calculateTotal())); // Update bill month total.
                 }
@@ -661,4 +709,16 @@ public class mainController {
         data.setCurrentYear(yearChosen);
         newFileChooser();
     }
+
+    public ObservableList<Bill> loadBillTable(ObservableList<Bill> bills, String bank) {
+        ObservableList<Bill> tempList = FXCollections.observableArrayList();;
+
+        for(Bill aBill : bills) {
+            if(aBill.getBankAccount().equals(bank)) {
+                tempList.add(aBill);
+            }
+        }
+        return tempList;
+    }
+
 }

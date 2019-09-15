@@ -1,8 +1,8 @@
-#amountColumn {
+#amountColumn, #wayneAmountColumn, #nickiAmountColumn, #extraAmountColumn {
   -fx-alignment: CENTER_RIGHT;
 }
 
-#dateColumn {
+#dateColumn, #wayneDateColumn, #nickiDateColumn, #extraDateColumn {
     -fx-alignment: CENTER;
 }
 
@@ -30,6 +30,14 @@
     -fx-alignment: center;
     -fx-opacity: 1.5;
    }
+
+.table-row-cell:ghosted .table-cell {
+    -fx-text-fill: gray;
+}
+
+#table-row-cell:ghosted:selected .table-cell {
+    -fx-text-fill: red;
+}
 
 #apanemain, #gpane {
     -fx-background-color: #1d1d1d;

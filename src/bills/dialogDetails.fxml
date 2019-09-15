@@ -46,6 +46,7 @@
                            <FXCollections fx:factory="observableArrayList">
                                <String fx:value="Wayne's Account" />
                                <String fx:value="Nicki's Account" />
+                               <String fx:value="Extras"/>
                            </FXCollections>
                        </items>
                        <value>

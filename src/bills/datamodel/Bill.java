@@ -22,6 +22,7 @@ public class Bill {
     private SimpleDoubleProperty previousAmount = new SimpleDoubleProperty();
     private final SimpleStringProperty month = new SimpleStringProperty();
     private final SimpleStringProperty year = new SimpleStringProperty();
+    private SimpleBooleanProperty selected = new SimpleBooleanProperty();
 
     // Constructors.
     public Bill() {
@@ -39,6 +40,7 @@ public class Bill {
         this.previousAmount.set(pAmount);
         this.month.set(aMonth);
         this.year.set(aYear);
+        this.selected.set(true);
     }
 
     public String getName() {
@@ -161,9 +163,22 @@ public class Bill {
         this.year.set(year);
     }
 
+    public boolean isSelected() {
+        return selected.get();
+    }
+
+    public SimpleBooleanProperty selectedProperty() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected.set(selected);
+    }
+
     @Override
     public String toString() {
         return "Bill{" +
+                "selected=" + selected +
                 "month= " + month +
                 "year" +
                 "name=" + name +

@@ -15,8 +15,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+        <?import javafx.scene.control.cell.CheckBoxTableCell?>
+
 
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import bills.BillsCheckBox?>
 <AnchorPane fx:id="mainPanel" prefHeight="783.0" prefWidth="1200.0" stylesheets="@MainBillCSS.css" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bills.mainController">
 <VBox prefHeight="783.0" prefWidth="1200.0">
   <children>
@@ -40,10 +43,12 @@
             <MenuItem mnemonicParsing="false" onAction="#saveAsFileChooser" text="Save As…" />
 
             <MenuItem mnemonicParsing="false" onAction="#currentYearFile" text="Current Year Filename" />
+              <MenuItem mnemonicParsing="false" onAction="#aboutHandler" text="About" />
                   <Menu mnemonicParsing="false" text="Default File">
                     <items>
                       <MenuItem mnemonicParsing="false" onAction="#currentDefaultFile" text="Current" />
                         <MenuItem mnemonicParsing="false" onAction="#changeDefaultFile" text="Change" />
+
                     </items>
                   </Menu>
           </items>
@@ -84,6 +89,7 @@
             <MenuItem mnemonicParsing="false" onAction="#showAddBillDialog" text="Add..." />
              <MenuItem mnemonicParsing="false" onAction="#showEditBillDialog" text="Edit..." />
                   <MenuItem mnemonicParsing="false" onAction="#deleteBill" text="Delete..." />
+
           </items>
         </Menu>
             <Menu mnemonicParsing="false" text="Default Bills">
@@ -96,6 +102,8 @@
                 <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit Program" />
               </items>
             </Menu>
+
+
       </menus>
     </MenuBar>
       <AnchorPane fx:id="apanemain" prefHeight="41.0" prefWidth="1200.0" />
@@ -111,7 +119,15 @@
                           <Label text="No Bills Shown" />
                       </placeholder>
                     <columns>
-                      <TableColumn prefWidth="49.0" text="On/Off" />
+                      <TableColumn prefWidth="49.0" text="On/Off" fx:id="checkBoxSelectionColumn">
+
+                          <cellValueFactory>
+                              <PropertyValueFactory property="selected" />
+
+                          </cellValueFactory>
+
+                      </TableColumn>
+
                       <TableColumn prefWidth="101.0" text="Name">
                           <cellValueFactory>
                               <PropertyValueFactory property="name" />
@@ -129,10 +145,10 @@
                         </TableColumn>
                     </columns>
                   </TableView>
-                  <Label fx:id="tLabel" layoutX="191.0" layoutY="653.0" text="Total" />
-                  <Label fx:id="totalLabel" layoutX="294.0" layoutY="653.0" />
-                  <Label fx:id="bsLabel" layoutX="35.0" layoutY="653.0" text="Bills" />
-                  <Label fx:id="numberBillsLabel" layoutX="66.0" layoutY="653.0" />
+                  <Label fx:id="tLabel" layoutX="220.0" layoutY="653.0" text="Total : " />
+                  <Label fx:id="totalLabel" layoutX="300.0" layoutY="653.0" />
+                  <Label fx:id="bsLabel" layoutX="35.0" layoutY="653.0" text="Bills Selected : " />
+                  <Label fx:id="numberBillsLabel" layoutX="125.0" layoutY="653.0" />
 
                </children>
             </AnchorPane>
@@ -177,11 +193,26 @@
                      </children>
                   </GridPane>
                   <Label fx:id="mExtrasLabel" layoutX="162.0" layoutY="337.0" text="Monthly Extras" />
-                  <TableView layoutX="23.0" layoutY="367.0" prefHeight="276.0" prefWidth="359.0">
+                  <TableView layoutX="23.0" layoutY="367.0" prefHeight="276.0" prefWidth="359.0" fx:id="extraBillTable">
+                      <placeholder>
+                          <Label text="No Bills Shown" />
+                      </placeholder>
                      <columns>
-                        <TableColumn prefWidth="139.0" text="Name" />
-                        <TableColumn prefWidth="90.0" text="Date Due" />
-                        <TableColumn prefWidth="128.0" text="Amount" />
+                        <TableColumn prefWidth="139.0" text="Name" >
+                         <cellValueFactory>
+                             <PropertyValueFactory property="name" />
+                         </cellValueFactory>
+                     </TableColumn>
+                         <TableColumn prefWidth="90.0" text="Date Due" fx:id="extraDateColumn">
+                             <cellValueFactory>
+                                 <PropertyValueFactory property="dateOfPayment" />
+                             </cellValueFactory>
+                         </TableColumn>
+                         <TableColumn prefWidth="118.0" text="Amount" fx:id="extraAmountColumn">
+                             <cellValueFactory>
+                                 <PropertyValueFactory property="amount" />
+                             </cellValueFactory>
+                         </TableColumn>
                      </columns>
                   </TableView>
                </children>
@@ -189,20 +220,50 @@
             <AnchorPane fx:id="apaneright" prefHeight="708.0" prefWidth="400.0">
                <children>
                   <Label fx:id="wBankLabel" layoutX="158.0" layoutY="6.0" prefHeight="29.0" prefWidth="85.0" text="Wayne's Bank" />
-                  <TableView layoutX="21.0" layoutY="41.0" prefHeight="276.0" prefWidth="359.0">
+                  <TableView layoutX="21.0" layoutY="41.0" prefHeight="276.0" prefWidth="359.0" fx:id="wayneBillTable">
+                      <placeholder>
+                          <Label text="No Bills Shown" />
+                      </placeholder>
                      <columns>
-                        <TableColumn prefWidth="139.0" text="Name" />
-                        <TableColumn prefWidth="90.0" text="Date Due" />
-                        <TableColumn prefWidth="128.0" text="Amount" />
+                        <TableColumn prefWidth="139.0" text="Name" >
+                            <cellValueFactory>
+                                <PropertyValueFactory property="name" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn prefWidth="90.0" text="Date Due" fx:id="wayneDateColumn">
+                         <cellValueFactory>
+                             <PropertyValueFactory property="dateOfPayment" />
+                         </cellValueFactory>
+                         </TableColumn>
+                        <TableColumn prefWidth="118.0" text="Amount" fx:id="wayneAmountColumn">
+                         <cellValueFactory>
+                             <PropertyValueFactory property="amount" />
+                         </cellValueFactory>
+                        </TableColumn>
                      </columns>
                   </TableView>
                   <Label fx:id="nBankLabel" layoutX="164.0" layoutY="337.0" text="Nicki's Bank" />
-                  <TableView layoutX="21.0" layoutY="368.0" prefHeight="276.0" prefWidth="359.0">
-                     <columns>
-                        <TableColumn prefWidth="139.0" text="Name" />
-                        <TableColumn prefWidth="90.0" text="Date Due" />
-                        <TableColumn prefWidth="128.0" text="Amount" />
-                     </columns>
+                  <TableView layoutX="21.0" layoutY="368.0" prefHeight="276.0" prefWidth="359.0" fx:id="nickiBillTable">
+                      <placeholder>
+                          <Label text="No Bills Shown" />
+                      </placeholder>
+                      <columns>
+                          <TableColumn prefWidth="139.0" text="Name" >
+                              <cellValueFactory>
+                                  <PropertyValueFactory property="name" />
+                              </cellValueFactory>
+                          </TableColumn>
+                          <TableColumn prefWidth="90.0" text="Date Due" fx:id="nickiDateColumn">
+                              <cellValueFactory>
+                                  <PropertyValueFactory property="dateOfPayment" />
+                              </cellValueFactory>
+                          </TableColumn>
+                          <TableColumn prefWidth="118.0" text="Amount" fx:id="nickiAmountColumn">
+                              <cellValueFactory>
+                                  <PropertyValueFactory property="amount" />
+                              </cellValueFactory>
+                          </TableColumn>
+                      </columns>
                   </TableView>
                </children>
             </AnchorPane>

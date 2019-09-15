@@ -35,3 +35,9 @@ Git Commit - 09-09-2019 2nd
 - Updated UI created and existing components linked.
 - Number Of UI nodes to be implemented in future versions
 - MainWindow CSS updated.
+
+Git Commit - 15-09-2019
+- Main Bill TableView updated to include a CheckBox. Bills can be selected/deselected to be included in the Bills Total.
+- Unchecked Bills are 'Ghosted'.
+- Bills selected total created.
+- Wayne, Nicki, Extra TableViews update with correct Bills in each.
